@@ -7,9 +7,9 @@ class Worker {
   final List<String> skills;
   final double rating;
   final int jobCount;
-  final double distanceKm;
-  final int etaMinutes;
   final bool verified;
+  final double latitude;
+  final double longitude;
 
   Worker({
     required this.id,
@@ -18,8 +18,8 @@ class Worker {
     required this.skills,
     required this.rating,
     required this.jobCount,
-    required this.distanceKm,
-    required this.etaMinutes,
     required this.verified,
+    required this.latitude,
+    required this.longitude,
   });
 }

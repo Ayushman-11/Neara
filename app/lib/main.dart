@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme/app_theme.dart';
@@ -6,7 +7,8 @@ import 'features/voice_agent/presentation/voice_agent_screen.dart';
 import 'features/discovery/presentation/worker_discovery_screen.dart';
 import 'shared/widgets/app_drawer.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const ProviderScope(child: NearaApp()));
 }
 

@@ -14,9 +14,9 @@ final workersProvider = Provider<List<Worker>>((ref) {
       skills: const ['Leak repair', 'Bathroom fitting'],
       rating: 4.7,
       jobCount: 120,
-      distanceKm: 2.3,
-      etaMinutes: 12,
       verified: true,
+      latitude: 16.7049,
+      longitude: 74.2433,
     ),
     Worker(
       id: '2',
@@ -25,9 +25,75 @@ final workersProvider = Provider<List<Worker>>((ref) {
       skills: const ['Wiring', 'Appliance install'],
       rating: 4.8,
       jobCount: 200,
-      distanceKm: 3.1,
-      etaMinutes: 15,
       verified: true,
+      latitude: 16.7089,
+      longitude: 74.2473,
+    ),
+    Worker(
+      id: '3',
+      name: 'Rajesh Kumar',
+      primaryCategory: ServiceCategory.mechanic,
+      skills: const ['Auto repair', 'Bike service'],
+      rating: 4.6,
+      jobCount: 150,
+      verified: true,
+      latitude: 16.7029,
+      longitude: 74.2403,
+    ),
+    Worker(
+      id: '4',
+      name: 'Anita Desai',
+      primaryCategory: ServiceCategory.maid,
+      skills: const ['House cleaning', 'Cooking'],
+      rating: 4.9,
+      jobCount: 300,
+      verified: true,
+      latitude: 16.7069,
+      longitude: 74.2453,
+    ),
+    Worker(
+      id: '5',
+      name: 'Vikram Singh',
+      primaryCategory: ServiceCategory.plumber,
+      skills: const ['Pipe installation', 'Tank repair'],
+      rating: 4.5,
+      jobCount: 95,
+      verified: false,
+      latitude: 16.7059,
+      longitude: 74.2413,
+    ),
+    Worker(
+      id: '6',
+      name: 'Meera Nair',
+      primaryCategory: ServiceCategory.electrician,
+      skills: const ['Solar panel', 'Smart home'],
+      rating: 4.7,
+      jobCount: 110,
+      verified: true,
+      latitude: 16.7079,
+      longitude: 74.2443,
+    ),
+    Worker(
+      id: '7',
+      name: 'Amit Joshi',
+      primaryCategory: ServiceCategory.mechanic,
+      skills: const ['Car service', 'AC repair'],
+      rating: 4.4,
+      jobCount: 80,
+      verified: false,
+      latitude: 16.7039,
+      longitude: 74.2423,
+    ),
+    Worker(
+      id: '8',
+      name: 'Sunita Rao',
+      primaryCategory: ServiceCategory.maid,
+      skills: const ['Deep cleaning', 'Laundry'],
+      rating: 4.8,
+      jobCount: 250,
+      verified: true,
+      latitude: 16.7099,
+      longitude: 74.2463,
     ),
   ];
 });
@@ -43,7 +109,6 @@ final filteredWorkersProvider = Provider<List<Worker>>((ref) {
     }
     if (w.rating < filters.minRating) return false;
     if (filters.verifiedOnly && !w.verified) return false;
-    if (w.distanceKm > filters.radiusKm) return false;
     return true;
   }).toList();
 });

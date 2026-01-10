@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'gemini_service.dart';
 
@@ -21,12 +22,55 @@ class EmergencyController
   Future<void> interpret(String transcript) async {
     state = const AsyncValue.loading();
     try {
+      double? lat;
+      double? lng;
+
+      try {
+        LocationPermission permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+
+        if (permission == LocationPermission.always ||
+            permission == LocationPermission.whileInUse) {
+          final position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+          );
+          lat = position.latitude;
+          lng = position.longitude;
+        }
+      } catch (_) {
+        // Silently ignore location errors; interpretation will still work.
+      }
+
       final result = await _ref
           .read(geminiServiceProvider)
-          .interpretEmergency(transcript: transcript);
-      state = AsyncValue.data(result);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+          .interpretEmergency(transcript: transcript, lat: lat, lng: lng);
+
+      // Always provide location hint - use GPS if Gemini didn't provide one
+      String locationHint = result.locationHint;
+      if (locationHint.isEmpty && lat != null && lng != null) {
+        locationHint =
+            'Current location (${lat.toStringAsFixed(4)}, ${lng.toStringAsFixed(4)})';
+      } else if (locationHint.isEmpty) {
+        locationHint = 'Location not available';
+      }
+
+      final augmented = EmergencyInterpretation(
+        issueSummary: result.issueSummary,
+        urgency: result.urgency,
+        locationHint: locationHint,
+        serviceCategory: result.serviceCategory,
+      );
+
+      state = AsyncValue.data(augmented);
+    } catch (e, stack) {
+      // Log the actual error for debugging
+      print('Gemini API Error: $e');
+      print('Stack trace: $stack');
+
+      // Set error state instead of fallback so we can see what went wrong
+      state = AsyncValue.error(e, stack);
     }
   }
 }

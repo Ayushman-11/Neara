@@ -1,10 +1,10 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
-/// Configure this with your Gemini API key.
-/// NOTE: Do not ship the raw key in a public build.
-const String kGeminiApiKey = 'AIzaSyBJD3poqnlUFTGniIpwJveeI78JKgnj2fI';
+/// Get Gemini API key from environment variables
+String get kGeminiApiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
 
 enum EmergencyUrgency { low, medium, high }
 
@@ -33,9 +33,9 @@ class SearchFilters {
 
   const SearchFilters({
     this.serviceCategory,
-    this.radiusKm = 5,
-    this.minRating = 4.0,
-    this.verifiedOnly = true,
+    this.radiusKm = 50,
+    this.minRating = 3.5,
+    this.verifiedOnly = false,
     this.genderPreference = 'any',
   });
 
@@ -58,9 +58,25 @@ class SearchFilters {
 
 class GeminiService {
   GeminiService()
-    : _model = GenerativeModel(model: 'gemini-1.5-pro', apiKey: kGeminiApiKey);
+    // Use gemini-2.5-flash which is the latest fast model
+    : _model = GenerativeModel(
+        model: 'gemini-2.5-flash',
+        apiKey: kGeminiApiKey,
+      );
 
   final GenerativeModel _model;
+
+  /// Lists all available models for debugging
+  Future<void> listAvailableModels() async {
+    try {
+      final response = await _model.generateContent([
+        Content.text('List available models'),
+      ]);
+      print('Available models check: ${response.text}');
+    } catch (e) {
+      print('Error checking models: $e');
+    }
+  }
 
   Future<EmergencyInterpretation> interpretEmergency({
     required String transcript,
@@ -72,6 +88,11 @@ class GeminiService {
         'You are an assistant for an Indian on-demand worker app for emergencies.',
       )
       ..writeln('User speech transcript: "$transcript"')
+      ..writeln(
+        lat != null && lng != null
+            ? 'User GPS coordinates (lat,lng): $lat,$lng. Use these only to refine the locationHint (e.g., nearby area name) and you may also include the coordinates.'
+            : 'No GPS coordinates available for this request.',
+      )
       ..writeln(
         'If location hints like NH4 or areas are present, keep them as text.',
       )
