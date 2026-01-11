@@ -4,10 +4,13 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import '../../../core/ai/ai_providers.dart';
 import '../../../core/ai/gemini_service.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../discovery/presentation/worker_discovery_screen.dart';
 
 class VoiceAgentScreen extends ConsumerStatefulWidget {
-  const VoiceAgentScreen({super.key});
+  final VoidCallback? onOpenDrawer;
+
+  const VoiceAgentScreen({super.key, this.onOpenDrawer});
 
   @override
   ConsumerState<VoiceAgentScreen> createState() => _VoiceAgentScreenState();
@@ -15,6 +18,12 @@ class VoiceAgentScreen extends ConsumerStatefulWidget {
 
 class _VoiceAgentScreenState extends ConsumerState<VoiceAgentScreen> {
   final TextEditingController _textController = TextEditingController();
+  static const List<String> _exampleQueries = [
+    'There is a power outage at my home',
+    'Water is leaking in my kitchen',
+    'My car broke down near me',
+    'Need urgent house cleaning help',
+  ];
 
   @override
   void dispose() {
@@ -113,78 +122,95 @@ class _VoiceAgentScreenState extends ConsumerState<VoiceAgentScreen> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.transparent,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0F172A), Color(0xFF020617)],
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: AppGradients.agentGradient),
         child: SafeArea(
           child: Column(
             children: [
-              const _FloatingAppBar(),
+              _HomeAppBar(onMenuTap: widget.onOpenDrawer),
               Expanded(
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.15,
+                          height: MediaQuery.of(context).size.height * 0.12,
                         ),
+                        // App branding and tagline
                         Container(
-                          width: 80,
-                          height: 80,
+                          padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF4F46E5), Color(0xFFEC4899)],
-                            ),
+                            gradient: AppGradients.accentGradient,
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF4F46E5).withOpacity(0.4),
-                                blurRadius: 30,
-                                spreadRadius: 5,
+                                color: const Color(0xFF6366F1).withOpacity(0.3),
+                                blurRadius: 40,
+                                spreadRadius: 8,
                               ),
                             ],
                           ),
                           child: const Icon(
-                            Icons.bolt,
-                            size: 40,
+                            Icons.bolt_rounded,
+                            size: 64,
                             color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 32),
                         const Text(
-                          'Describe your emergency',
+                          'Neara',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 48,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                            letterSpacing: -1,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Your emergency-ready assistant',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Color(0xFF64748B),
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Use voice or text below to find help',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFF9CA3AF),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        _QuickActionsGrid(
-                          onBrowseServices: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const WorkerDiscoveryScreen(),
+                        const SizedBox(height: 28),
+                        // Example questions
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Example questions you can ask:',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF64748B),
+                                ),
                               ),
-                            );
-                          },
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  for (final query in _exampleQueries)
+                                    _ExampleQuestionChip(
+                                      label: query,
+                                      onTap: () {
+                                        _textController.text = query;
+                                      },
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(height: 32),
                       ],
                     ),
                   ),
@@ -203,23 +229,61 @@ class _VoiceAgentScreenState extends ConsumerState<VoiceAgentScreen> {
   }
 }
 
-class _FloatingAppBar extends StatelessWidget {
-  const _FloatingAppBar();
+class _ExampleQuestionChip extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _ExampleQuestionChip({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFF1F2937).withOpacity(0.6),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 20,
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF0F172A),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeAppBar extends StatelessWidget {
+  final VoidCallback? onMenuTap;
+
+  const _HomeAppBar({this.onMenuTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ],
@@ -227,220 +291,74 @@ class _FloatingAppBar extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF4F46E5), Color(0xFFEC4899)],
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.person,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text(
-                      'Hi, Bayzid',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      'Control tasks effortlessly',
-                      style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.notifications_outlined,
-                color: Color(0xFFE5E7EB),
-                size: 22,
+            // Menu button (opens drawer)
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black,
               ),
-              onPressed: () {},
+              child: IconButton(
+                icon: const Icon(Icons.menu_rounded, size: 22),
+                color: Colors.white,
+                onPressed: () {
+                  if (onMenuTap != null) {
+                    onMenuTap!();
+                  } else {
+                    final scaffoldState = Scaffold.maybeOf(context);
+                    scaffoldState?.openDrawer();
+                  }
+                },
+              ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickActionsGrid extends StatelessWidget {
-  final VoidCallback onBrowseServices;
-
-  const _QuickActionsGrid({required this.onBrowseServices});
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final spacing = 12.0;
-        final itemWidth = (constraints.maxWidth - spacing) / 2;
-        return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
-          children: [
-            _QuickActionTile(
-              width: itemWidth,
-              icon: Icons.flash_on,
-              title: 'Emergency help',
-              subtitle: 'Fast, voice-first help near you',
-              onTap: () {
-                // Primary action is already the hero mic; keep this as hint.
-              },
+            // App name in center
+            const Text(
+              'Neara',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+                letterSpacing: -0.5,
+              ),
             ),
-            _QuickActionTile(
-              width: itemWidth,
-              icon: Icons.list_alt,
-              title: 'Browse services',
-              subtitle: 'Plumbers, electricians, maids & more',
-              onTap: onBrowseServices,
-            ),
-            _QuickActionTile(
-              width: itemWidth,
-              icon: Icons.assignment,
-              title: 'My\nrequests',
-              subtitle: 'Track past and active jobs',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Requests tracking will come later.'),
-                  ),
-                );
-              },
-            ),
-            _QuickActionTile(
-              width: itemWidth,
-              icon: Icons.shield,
-              title: 'Safety & \nSOS',
-              subtitle: 'Share live tracking, SOS options',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Safety & SOS screen is not wired yet.'),
-                  ),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _QuickActionTile extends StatelessWidget {
-  final double width;
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _QuickActionTile({
-    required this.width,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: 95,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
-            ),
-            border: Border.all(
-              color: const Color(0xFF334155).withOpacity(0.5),
-              width: 1,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 26,
-                    height: 26,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF4F46E5), Color(0xFFEC4899)],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF4F46E5).withOpacity(0.4),
-                          blurRadius: 8,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                    child: Icon(icon, size: 14, color: Colors.white),
-                  ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        height: 1.2,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+            // Profile button
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: AppGradients.accentGradient,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 9,
-                  color: Color(0xFF9CA3AF),
-                  height: 1.2,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.person_rounded,
+                  size: 20,
+                  color: Colors.white,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Profile - Coming soon!')),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _BottomInputBar extends StatelessWidget {
+// Remove old _FloatingAppBar and _QuickActionsGrid as they're no longer needed
+
+class _BottomInputBar extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onMicTap;
   final VoidCallback onSubmit;
@@ -452,66 +370,119 @@ class _BottomInputBar extends StatelessWidget {
   });
 
   @override
+  State<_BottomInputBar> createState() => _BottomInputBarState();
+}
+
+class _BottomInputBarState extends State<_BottomInputBar> {
+  bool _hasText = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _hasText = widget.controller.text.trim().isNotEmpty;
+    widget.controller.addListener(_handleTextChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant _BottomInputBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_handleTextChanged);
+      _hasText = widget.controller.text.trim().isNotEmpty;
+      widget.controller.addListener(_handleTextChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_handleTextChanged);
+    super.dispose();
+  }
+
+  void _handleTextChanged() {
+    final hasTextNow = widget.controller.text.trim().isNotEmpty;
+    if (hasTextNow != _hasText) {
+      setState(() {
+        _hasText = hasTextNow;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
       padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 12,
-        bottom: MediaQuery.of(context).padding.bottom + 12,
+        left: 20,
+        right: 20,
+        top: 8,
+        bottom: MediaQuery.of(context).padding.bottom + 16,
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Expanded(
               child: TextField(
-                controller: controller,
-                style: const TextStyle(color: Colors.white, fontSize: 15),
-                decoration: InputDecoration(
+                controller: widget.controller,
+                style: const TextStyle(
+                  color: Color(0xFF1E293B),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+                decoration: const InputDecoration(
                   hintText: 'Describe what you need...',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFF6B7280),
+                  hintStyle: TextStyle(
+                    color: Color(0xFF94A3B8),
                     fontSize: 15,
+                    fontWeight: FontWeight.w500,
                   ),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  suffixIcon: GestureDetector(
-                    onTap: onMicTap,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      margin: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF4F46E5), Color(0xFFEC4899)],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF4F46E5).withOpacity(0.4),
-                            blurRadius: 8,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.mic,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
                   ),
                 ),
-                onSubmitted: (_) => onSubmit(),
+                onSubmitted: (_) => widget.onSubmit(),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                if (_hasText) {
+                  widget.onSubmit();
+                } else {
+                  widget.onMicTap();
+                }
+              },
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: AppGradients.accentGradient,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF6366F1).withOpacity(0.4),
+                      blurRadius: 12,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  _hasText ? Icons.send_rounded : Icons.mic_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
             ),
           ],
@@ -825,12 +796,15 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF1F2937), Color(0xFF0F172A)],
-        ),
+        color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 40,
+            offset: Offset(0, -8),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -839,7 +813,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
+              color: const Color(0xFFE2E8F0),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -861,28 +835,17 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                           height: 120,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF4F46E5),
-                                Color(0xFFEC4899),
-                                Color(0xFFFBBF24),
-                              ],
-                            ),
+                            gradient: AppGradients.accentGradient,
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF4F46E5).withOpacity(0.6),
+                                color: const Color(0xFF6366F1).withOpacity(0.4),
                                 blurRadius: 40,
                                 spreadRadius: 10,
-                              ),
-                              BoxShadow(
-                                color: const Color(0xFFEC4899).withOpacity(0.4),
-                                blurRadius: 30,
-                                spreadRadius: 5,
                               ),
                             ],
                           ),
                           child: const Icon(
-                            Icons.mic,
+                            Icons.mic_rounded,
                             size: 56,
                             color: Colors.white,
                           ),
@@ -902,8 +865,8 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1E293B),
                             height: 1.5,
                           ),
                         ),
@@ -912,29 +875,37 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1F2937).withOpacity(0.8),
+                              color: const Color(0xFFF8FAFC),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: const Color(0xFF4F46E5).withOpacity(0.3),
+                                color: const Color(0xFFE2E8F0),
+                                width: 1.5,
                               ),
                             ),
                             child: Column(
                               children: [
-                                const Row(
+                                Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
-                                      Icons.auto_awesome,
-                                      size: 16,
-                                      color: Color(0xFF4F46E5),
+                                    Container(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                        gradient: AppGradients.accentGradient,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: const Icon(
+                                        Icons.auto_awesome_rounded,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                    SizedBox(width: 8),
-                                    Text(
+                                    const SizedBox(width: 8),
+                                    const Text(
                                       'AI Analysis',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF4F46E5),
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF6366F1),
                                       ),
                                     ),
                                   ],
@@ -945,8 +916,9 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 14,
-                                    color: Color(0xFF9CA3AF),
+                                    color: Color(0xFF64748B),
                                     height: 1.4,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],
@@ -959,9 +931,9 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                              strokeWidth: 2.5,
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                Color(0xFF4F46E5),
+                                Color(0xFF6366F1),
                               ),
                             ),
                           ),
@@ -972,7 +944,11 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                   const SizedBox(height: 16),
                   const Text(
                     'Speak now to describe your emergency',
-                    style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF94A3B8),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 40),
                 ],
@@ -981,22 +957,35 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
           ),
           Padding(
             padding: const EdgeInsets.all(24),
-            child: ElevatedButton(
-              onPressed: _stopListening,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1F2937),
-                minimumSize: const Size(double.infinity, 52),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(26),
-                  side: BorderSide(color: Colors.white.withOpacity(0.2)),
-                ),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: AppGradients.accentGradient,
+                borderRadius: BorderRadius.circular(26),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6366F1).withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: const Text(
-                'Done',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+              child: ElevatedButton(
+                onPressed: _stopListening,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  minimumSize: const Size(double.infinity, 52),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(26),
+                  ),
+                ),
+                child: const Text(
+                  'Done',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),

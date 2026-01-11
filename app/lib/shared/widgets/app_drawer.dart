@@ -8,37 +8,50 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: const Color(0xE6121826),
+      backgroundColor: Colors.white,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const _DrawerHeader(),
-            const SizedBox(height: 16),
+            const Divider(height: 1),
+            const SizedBox(height: 8),
             _DrawerItem(
-              icon: Icons.mic,
-              label: 'Home (Voice Agent)',
+              icon: Icons.home_rounded,
+              label: 'Home',
               onTap: () {
                 Navigator.of(context).maybePop();
                 onSelectScreen?.call(0);
               },
             ),
             _DrawerItem(
-              icon: Icons.map,
+              icon: Icons.search_rounded,
               label: 'Browse Services',
               onTap: () {
                 Navigator.of(context).maybePop();
                 onSelectScreen?.call(1);
               },
             ),
-            _DrawerItem(icon: Icons.bookmark, label: 'Saved Workers'),
-            _DrawerItem(icon: Icons.assignment, label: 'My Requests'),
-            _DrawerItem(icon: Icons.shield, label: 'Safety & SOS'),
             const _DrawerItem(
-              icon: Icons.help_outline,
+              icon: Icons.bookmark_rounded,
+              label: 'Saved Workers',
+            ),
+            const _DrawerItem(
+              icon: Icons.assignment_rounded,
+              label: 'My Requests',
+            ),
+            const _DrawerItem(
+              icon: Icons.shield_rounded,
+              label: 'Safety & SOS',
+            ),
+            const Spacer(),
+            const Divider(height: 1),
+            const _DrawerItem(
+              icon: Icons.help_outline_rounded,
               label: 'Help & Support',
             ),
-            const _DrawerItem(icon: Icons.settings, label: 'Settings'),
+            const _DrawerItem(icon: Icons.settings_rounded, label: 'Settings'),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -51,33 +64,57 @@ class _DrawerHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return Container(
+      padding: const EdgeInsets.all(20.0),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF000000), Color(0xFF111827)],
+        ),
+      ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [Color(0xFF4F46E5), Color(0xFF06B6D4)],
-              ),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            child: const Icon(Icons.bolt, color: Colors.white),
+            child: const Icon(
+              Icons.bolt_rounded,
+              color: Colors.black,
+              size: 24,
+            ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               Text(
                 'Neara',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
               ),
               SizedBox(height: 4),
               Text(
                 'Emergency-ready discovery',
-                style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -96,10 +133,42 @@ class _DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: const Color(0xFFE5E7EB)),
-      title: Text(label, style: const TextStyle(color: Color(0xFFE5E7EB))),
-      onTap: onTap ?? () => Navigator.of(context).maybePop(),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap:
+            onTap ??
+            () {
+              Navigator.of(context).maybePop();
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('$label - Coming soon!')));
+            },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.white, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

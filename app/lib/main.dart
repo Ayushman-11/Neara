@@ -43,7 +43,12 @@ class _RootShellState extends State<_RootShell> {
       body: SafeArea(
         child: IndexedStack(
           index: _index,
-          children: const [VoiceAgentScreen(), WorkerDiscoveryScreen()],
+          children: [
+            VoiceAgentScreen(
+              onOpenDrawer: () => Scaffold.of(context).openDrawer(),
+            ),
+            const WorkerDiscoveryScreen(),
+          ],
         ),
       ),
     );

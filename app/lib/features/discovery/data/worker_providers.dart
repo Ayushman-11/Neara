@@ -17,6 +17,7 @@ final workersProvider = Provider<List<Worker>>((ref) {
       verified: true,
       latitude: 16.7049,
       longitude: 74.2433,
+      status: WorkerStatus.available,
     ),
     Worker(
       id: '2',
@@ -28,6 +29,7 @@ final workersProvider = Provider<List<Worker>>((ref) {
       verified: true,
       latitude: 16.7089,
       longitude: 74.2473,
+      status: WorkerStatus.busy,
     ),
     Worker(
       id: '3',
@@ -39,6 +41,7 @@ final workersProvider = Provider<List<Worker>>((ref) {
       verified: true,
       latitude: 16.7029,
       longitude: 74.2403,
+      status: WorkerStatus.available,
     ),
     Worker(
       id: '4',
@@ -50,6 +53,7 @@ final workersProvider = Provider<List<Worker>>((ref) {
       verified: true,
       latitude: 16.7069,
       longitude: 74.2453,
+      status: WorkerStatus.off,
     ),
     Worker(
       id: '5',
@@ -61,6 +65,7 @@ final workersProvider = Provider<List<Worker>>((ref) {
       verified: false,
       latitude: 16.7059,
       longitude: 74.2413,
+      status: WorkerStatus.busy,
     ),
     Worker(
       id: '6',
@@ -72,6 +77,7 @@ final workersProvider = Provider<List<Worker>>((ref) {
       verified: true,
       latitude: 16.7079,
       longitude: 74.2443,
+      status: WorkerStatus.available,
     ),
     Worker(
       id: '7',
@@ -83,6 +89,7 @@ final workersProvider = Provider<List<Worker>>((ref) {
       verified: false,
       latitude: 16.7039,
       longitude: 74.2423,
+      status: WorkerStatus.off,
     ),
     Worker(
       id: '8',
@@ -94,6 +101,7 @@ final workersProvider = Provider<List<Worker>>((ref) {
       verified: true,
       latitude: 16.7099,
       longitude: 74.2463,
+      status: WorkerStatus.available,
     ),
   ];
 });
@@ -103,7 +111,14 @@ final filteredWorkersProvider = Provider<List<Worker>>((ref) {
   final filters = ref.watch(searchFiltersProvider);
 
   return all.where((w) {
-    if (filters.serviceCategory != null &&
+    // If multiple categories selected, use them first
+    if (filters.categories.isNotEmpty &&
+        !filters.categories.contains(w.primaryCategory)) {
+      return false;
+    }
+    // Fallback to single serviceCategory when no multi-select
+    if (filters.categories.isEmpty &&
+        filters.serviceCategory != null &&
         w.primaryCategory != filters.serviceCategory) {
       return false;
     }

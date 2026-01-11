@@ -35,7 +35,7 @@ class EmergencyController
             permission == LocationPermission.whileInUse) {
           final position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high,
-          );
+          ).timeout(const Duration(seconds: 5));
           lat = position.latitude;
           lng = position.longitude;
         }

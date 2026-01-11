@@ -1,293 +1,359 @@
-# Neara - Voice-First Emergency Help App
+# Neara – Voice‑First Hyperlocal Help App
 
-An AI-powered Flutter application for connecting users with local service workers (mechanics, plumbers, electricians, maids) through voice-first emergency assistance.
+An AI‑powered Flutter application that connects users with nearby service workers (mechanics, plumbers, electricians, cleaners, etc.) through a **voice‑first emergency and assistance experience**, using **Google Gemini** for intent understanding.
 
-## 🎯 Project Overview
+---
 
-Neara is a voice-first emergency help platform designed for the Indian market. Users can describe their emergency using voice or text, and the app uses Google Gemini AI to interpret the request, extract key details (service type, location, urgency), and connect them with nearby verified workers.
+## 📚 Table of Contents
 
-## ✅ Completed Features
+1. Project Overview
+2. Why Neara is Helpful
+3. Key Features (Current MVP)
+4. How the App Works – User Flows
+5. How Gemini Works Inside Neara
+6. Architecture & Technologies Used
+7. Future Scope (Including Worker App)
+8. Mock / Stubbed Parts
+9. Running the App
+10. Design System
+11. Known Issues & Limitations
 
-### 🎤 Voice Agent Screen
-- **Voice Input**: Real-time speech-to-text transcription using `speech_to_text` package
-- **Text Input**: Alternative text input with transparent glass-morphic design
-- **AI Processing**: Live Gemini AI analysis showing extracted information as user speaks
-- **Confirmation Dialog**: User confirms extracted details before searching:
-  - Service category (mechanic, plumber, electrician, maid, other)
-  - Location hint (GPS-based or spoken location)
-  - Urgency level (low, medium, high)
-  - Issue summary
-- **UI/UX**: 
+---
+
+## 🎯 1. Project Overview
+
+Neara is a **voice‑first emergency help and home‑services discovery app** designed for the Indian hyperlocal context.
+
+Users can simply **speak or type a natural‑language request** like:
+
+> "Geyser is leaking badly in my bathroom, need urgent help"
+
+Neara uses **Google Gemini** to:
+
+- Understand the **intent** (which service is needed – plumber, electrician, cleaner, etc.)
+- Extract key **entities** (urgency, issue summary, location hints)
+- Build a structured **job request**
+- Auto‑filter and show **nearby, verified workers** that match the request.
+
+The current app focuses on the **consumer side** (requesting help and discovering workers) with **mocked workers and no real backend**, but is architected so that a real backend and worker app can plug in later.
+
+---
+
+## 💡 2. Why Neara is Helpful
+
+Neara is built to solve common problems in India with existing local‑service discovery:
+
+- Users often **don’t know the exact category** (“Is geyser a plumber or electrician job?”).
+- Existing directories (e.g., generic listing apps) provide **phone numbers only**, not end‑to‑end flow.
+- Independent workers rely on **WhatsApp / calls**, making discovery, trust, and tracking difficult.
+
+Neara helps by:
+
+- Letting users **describe problems in their own words** (voice or text) with **Gemini handling intent**, so no manual category picking is required.
+- Providing **hyperlocal discovery** and filtering of nearby workers instead of generic city‑wide lists.
+- Offering a **single flow from problem description → AI understanding → worker list**, which can later grow into booking, tracking, and payments.
+- Laying the foundation for a **worker‑first platform** where local workers can self‑onboard, manage availability, and track their revenue.
+
+---
+
+## ✅ 3. Key Features (Current MVP)
+
+### 3.1 Voice Agent Screen
+
+- **Voice input**
+  - Real‑time speech‑to‑text transcription using `speech_to_text`.
+  - Animated listening state and clear feedback while recording.
+- **Text input**
+  - Alternative bottom text bar for users who prefer typing.
+  - Glass‑morphic design consistent with the dark gradient theme.
+- **Live AI processing**
+  - Every few seconds, Neara sends the latest transcript/text to Gemini.
+  - The UI shows **live extracted details** (service category, issue summary, urgency, location hint) beside the transcription.
+- **Confirmation dialog**
+  - When the user taps "Done", they see a structured summary:
+    - Service category (mechanic / plumber / electrician / maid / other)
+    - Location hint (GPS‑based or spoken location)
+    - Urgency level (low / medium / high)
+    - Issue summary in plain language
+  - Users can confirm or cancel before moving to discovery.
+- **UI/UX highlights**
   - Dark gradient theme (#0F172A → #020617)
-  - Floating app bar with greeting
+  - Floating app bar with greeting and status
   - 2×2 quick action cards (Emergency help, Browse services, My requests, Safety & SOS)
   - Bottom input bar with integrated mic button
-  - Modal listening panel with animated mic and live transcription
 
-### 🤖 AI Integration
-- **Gemini AI Service**: Uses `gemini-pro` model for natural language understanding
-- **Environment Variables**: API key stored securely in `.env` file (not committed to git)
-- **Emergency Interpretation**: Extracts structured data from voice/text input:
-  ```dart
-  {
-    "issueSummary": "pipe burst in bathroom",
-    "urgency": "high",
-    "locationHint": "NH4 near City Center",
-    "serviceCategory": "plumber"
-  }
-  ```
-- **GPS Integration**: Captures user location using `geolocator` package
+### 3.2 Worker Discovery Screen
 
-### 🔍 Worker Discovery Screen
-- **Mock Worker Data**: 20+ pre-populated workers with realistic profiles
-- **Filtering System**:
-  - Service category (auto-applied from AI interpretation)
+- **Mock worker list**
+  - 20+ pre‑populated workers with realistic names, ratings, services, and distances.
+- **Filtering system**
+  - Service category (auto‑applied from Gemini’s interpretation)
   - Distance radius (km)
   - Minimum rating
-  - Verified workers only
+  - Verified‑only toggle
   - Gender preference
-- **Worker Cards**: Display name, service, rating, distance, verification status
-- **Navigation**: Seamless flow from voice input → AI analysis → confirmation → worker list
+- **Worker cards**
+  - Show avatar, name, primary service, ratings, distance, verification badge.
+- **Navigation**
+  - Smooth flow: Voice/Text request → AI interpretation → Confirmation → Filtered worker list.
 
-### 🏗️ Architecture
-- **State Management**: Riverpod (Provider-based)
-- **File Structure**:
-  ```
-  lib/
-  ├── core/
-  │   ├── ai/
-  │   │   ├── gemini_service.dart (AI interpretation)
-  │   │   └── ai_providers.dart (Riverpod state management)
-  │   └── theme/
-  │       └── app_theme.dart
-  ├── features/
-  │   ├── voice_agent/
-  │   │   └── presentation/
-  │   │       └── voice_agent_screen.dart
-  │   └── discovery/
-  │       ├── data/
-  │       │   └── worker_providers.dart (mock data)
-  │       └── presentation/
-  │           └── worker_discovery_screen.dart
-  └── shared/
-      └── widgets/
-  ```
+### 3.3 Location & Context
 
-## 🚧 Mock/Stub Components
+- **GPS integration** using `geolocator` to get user’s current location.
+- Location is passed to the AI and used to interpret spoken hints like "near City Center".
 
-### Currently Mocked:
-1. **Worker Data**: All 20+ workers are hardcoded mock data in `worker_providers.dart`
-2. **Worker Profiles**: Detailed profile screen not implemented
-3. **Job Requests**: Request tracking UI exists but no actual job creation
-4. **Live Tracking**: Navigation to tracking screen exists but tracking not implemented
-5. **Safety Features**: SOS, share session, and high-trust filters are stubs
-6. **Worker Onboarding**: No worker registration or profile management
-7. **Payment System**: No payment integration
-8. **Chat/Messaging**: No communication system between users and workers
-9. **Notifications**: No push notifications or real-time updates
-10. **Map View**: Google Maps integration exists but worker pins not implemented
+---
 
-## 📋 To-Do List
+## 🔄 4. How the App Works – User Flows
 
-### High Priority
-- [ ] **Emergency Fallback Flow**: Quick category selection when voice fails + GPS-based auto-matching
-- [ ] **Normal Browse Flow Refinement**:
-  - Category selection screen
-  - Advanced filters UI
-  - Worker detailed profile page (bio, reviews, portfolio photos)
-  - Sort options (rating, distance, price)
+### 4.1 Emergency Voice‑First Flow
 
-### Medium Priority
-- [ ] **Map View Implementation**:
-  - Display workers as pins on Google Maps
-  - Cluster nearby workers
-  - Tap pin to show worker quick info
-  - Navigate to profile from map
-- [ ] **Basic Worker Onboarding**:
-  - Registration form (mock)
-  - Profile creation
-  - Service selection
-  - Document upload simulation
-- [ ] **Job Request Handling**:
-  - Create job request from worker profile
-  - Request details form (description, images, time preference)
-  - Mock job status updates
-  - Request history screen
+1. User opens the app (Voice Agent is the home screen).
+2. User taps mic and speaks the problem.
+3. Speech‑to‑text generates live transcription.
+4. Gemini processes the text and current GPS data to extract:
+   - Service category
+   - Issue summary
+   - Urgency level
+   - Location hint
+5. Neara shows a confirmation sheet with the extracted data.
+6. User taps **Find Workers**.
+7. Worker Discovery Screen opens, already filtered by service category.
+8. User scrolls and selects a worker (future: open profile → book → track).
 
-### Low Priority
-- [ ] **Safety Features**:
-  - SOS button functionality (mock)
-  - Share live session with emergency contact
-  - High-trust worker filter hooks
-  - Background location tracking
-- [ ] **Performance Optimization**:
-  - Image caching for worker photos
-  - Lazy loading for long worker lists
-  - Reduce Gemini API calls (debouncing)
-- [ ] **Testing**:
-  - Unit tests for AI interpretation
-  - Widget tests for screens
-  - Integration tests for complete flows
+### 4.2 Text Input Flow
 
-### Future Enhancements
-- [ ] Real backend API integration
-- [ ] User authentication (phone OTP)
-- [ ] Real-time chat with workers
-- [ ] Payment gateway integration
-- [ ] Push notifications
-- [ ] Worker availability calendar
-- [ ] Price quotes and negotiation
-- [ ] Review and rating system (functional)
-- [ ] Multiple language support (Hindi, regional languages)
+1. User types a message such as "need electrician for fan repair tonight".
+2. On send, Gemini is called with the text.
+3. Gemini returns structured fields (service, urgency, issue summary, location hint).
+4. The worker list is shown with filters auto‑applied.
 
-## 🔄 Key Workflows
+### 4.3 Browse‑Only Flow (Non‑AI)
 
-### 1. Emergency Voice-First Flow
-```
-User Opens App
-  ↓
-Voice Agent Screen (Home)
-  ↓
-User Taps Mic / Speaks → Real-time transcription
-  ↓
-Gemini AI analyzes → Shows extracted info live
-  ↓
-User Taps "Done" → Confirmation dialog appears
-  ↓
-User Reviews:
-  - Service: PLUMBER
-  - Location: Current location
-  - Urgency: HIGH
-  - Issue: pipe burst
-  ↓
-User Taps "Find Workers"
-  ↓
-Worker Discovery Screen (filtered by service)
-  ↓
-User Selects Worker → (Future: Profile → Book → Track)
+1. User taps **Browse services** from quick actions.
+2. Worker Discovery Screen opens with all workers.
+3. User manually filters by service, rating, distance, and other filters.
+
+---
+
+## 🤖 5. How Gemini Works Inside Neara
+
+### 5.1 Model & Integration
+
+- Uses **`google_generative_ai`** package.
+- Primary model: **`gemini-pro`** for text‑only understanding.
+- API key stored securely in `.env` and loaded with `flutter_dotenv`.
+
+### 5.2 Intent & Entity Extraction
+
+Neara sends the current transcription/text to Gemini with a prompt instructing it to output structured JSON with fields like:
+
+```dart
+{
+  "issueSummary": "pipe burst in bathroom",
+  "urgency": "high",
+  "locationHint": "NH4 near City Center",
+  "serviceCategory": "plumber"
+}
 ```
 
-### 2. Text Input Flow
+The response is parsed into a Dart model and propagated through Riverpod providers.
+
+### 5.3 Handling Uncertainty (Conceptual)
+
+- If Gemini is **confident**, Neara auto‑applies filters and skips extra questions.
+- If confidence is low or fields are missing, the UI can:
+  - Ask **follow‑up questions** (planned in future versions).
+  - Fall back to **manual category selection** while still using Gemini’s best guess.
+
+### 5.4 Why This is Gemini‑Style Intent Handling
+
+- Users **do not need to explicitly pick the service** from a menu.
+- The model infers the correct category, urgency, and rough location from natural language.
+- This mimics how products like Gemini chat understand free‑form queries and return structured understanding under the hood.
+
+---
+
+## 🏗️ 6. Architecture & Technologies Used
+
+### 6.1 High‑Level Architecture
+
+- **Presentation Layer**
+  - Voice Agent screen (voice_agent_screen.dart)
+  - Worker Discovery screen (worker_discovery_screen.dart)
+  - Shared widgets for cards, buttons, and theming.
+- **Domain / Logic Layer**
+  - AI interpretation logic (Gemini prompts and parsing)
+  - Filtering logic for worker lists.
+- **Data Layer**
+  - Mock worker repository using in‑memory lists.
+
+### 6.2 File Structure (Simplified)
+
+```text
+lib/
+├── core/
+│   ├── ai/
+│   │   ├── gemini_service.dart      // Gemini API, prompts, parsing
+│   │   └── ai_providers.dart        // Riverpod providers for AI state
+│   └── theme/
+│       └── app_theme.dart           // App‑wide theming
+├── features/
+│   ├── voice_agent/
+│   │   └── presentation/
+│   │       └── voice_agent_screen.dart
+│   └── discovery/
+│       ├── data/
+│       │   └── worker_providers.dart // Mock worker data + filters
+│       └── presentation/
+│           └── worker_discovery_screen.dart
+└── shared/
+    └── widgets/                     // Reusable UI components
 ```
-User Opens App
-  ↓
-Types in bottom input bar: "need electrician"
-  ↓
-Taps send / Enter → Shows loading
-  ↓
-Gemini interprets → Auto-applies filters
-  ↓
-Worker Discovery Screen (filtered results)
-```
 
-### 3. Browse Flow (Current)
-```
-User Opens App
-  ↓
-Taps "Browse services" quick action
-  ↓
-Worker Discovery Screen (all workers)
-  ↓
-User applies filters manually (not yet refined)
-```
+### 6.3 Tech Stack
 
-## 🔧 Technical Stack
+- **Framework**: Flutter ^3.9.2
+- **State Management**: `flutter_riverpod` ^2.5.1
+- **AI / LLM**: `google_generative_ai` ^0.4.6 (Gemini)
+- **Voice Recognition**: `speech_to_text` ^7.3.0
+- **Location**: `geolocator` ^13.0.1
+- **Env Management**: `flutter_dotenv` ^5.1.0
+- **Maps**: `google_maps_flutter` ^2.9.0 (currently stubbed for pins)
+- **Typography**: `google_fonts` ^6.2.1
 
-### Core Dependencies
-- **Flutter SDK**: ^3.9.2
-- **flutter_riverpod**: ^2.5.1 (State management)
-- **google_generative_ai**: ^0.4.6 (Gemini AI)
-- **speech_to_text**: ^7.3.0 (Voice recognition)
-- **geolocator**: ^13.0.1 (GPS location)
-- **flutter_dotenv**: ^5.1.0 (Environment variables)
-- **google_maps_flutter**: ^2.9.0 (Map integration)
-- **google_fonts**: ^6.2.1 (Typography)
+### 6.4 Configuration
 
-### Configuration Files
-- **.env**: Contains `GEMINI_API_KEY` (gitignored)
-- **pubspec.yaml**: Flutter dependencies
-- **analysis_options.yaml**: Dart linter rules
+- `.env` – contains `GEMINI_API_KEY` (git‑ignored).
+- `pubspec.yaml` – dependencies and assets.
+- `analysis_options.yaml` – Dart lints.
 
-## 🚀 Running the Project
+---
+
+## 🚀 7. Future Scope (Including Worker App)
+
+The current build is **consumer‑side MVP**. Planned enhancements include:
+
+### 7.1 Worker App (Future)
+
+- Separate **Worker App** (or mode) where workers can:
+  - Register with phone/KYC and get verified.
+  - Set services offered, serviceable areas, and availability (Available / Busy / Offline).
+  - Receive service requests from Neara users.
+  - **Accept / Reject** requests and view job details.
+  - Update job status: On the way → Arrived → In progress → Completed.
+  - Maintain a **revenue dashboard** (daily, weekly, monthly earnings and job history).
+
+### 7.2 Platform Features
+
+- Real backend API and database.
+- Phone‑OTP authentication.
+- Real‑time chat and in‑app voice calling.
+- Map‑based view with live worker locations.
+- Escrow or in‑app payments with payment gateway integration.
+- Push notifications for job updates.
+- Worker availability calendar.
+- Quotes, price negotiation, and coupons.
+- Review and rating system backed by real data.
+- Multi‑language support (Hindi and regional languages).
+- Safety & SOS workflows and trusted‑worker filters.
+
+---
+
+## 🧪 8. Mock / Stubbed Parts (Current State)
+
+The following are **mocked or not yet implemented**:
+
+1. Worker data (20+ workers) is hardcoded in `worker_providers.dart`.
+2. Worker detail/profile screen is minimal or absent.
+3. Job request creation and tracking is not connected to a backend.
+4. Live tracking and navigation are just placeholders.
+5. Safety features (SOS, share session, high‑trust filters) are stubs.
+6. Worker onboarding/registration is not implemented.
+7. No payment integration (on‑site payment implied only in UX).
+8. No in‑app chat or messaging.
+9. No push notifications or real‑time updates.
+10. Map view exists but worker pins and live positions are not wired.
+
+---
+
+## 🛠️ 9. Running the App
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd app
    ```
 
 2. **Install dependencies**
+
    ```bash
    flutter pub get
    ```
 
 3. **Configure environment**
-   - Create `.env` file in project root
+
+   - Create a `.env` file in the project root.
    - Add your Gemini API key:
-     ```
+
+     ```text
      GEMINI_API_KEY=your_api_key_here
      ```
 
 4. **Run the app**
+
    ```bash
    flutter run
    ```
 
-## 📱 Supported Platforms
+### Supported Platforms
+
 - ✅ Android
 - ✅ iOS
-- ⚠️ Web (limited - voice input may not work)
-- ⚠️ Desktop (not tested)
-
-## 🔐 Security Notes
-
-- API keys are stored in `.env` file (never commit this!)
-- `.gitignore` includes `.env` to prevent accidental commits
-- GPS permissions requested at runtime
-- Microphone permissions requested when needed
-
-## 🎨 Design System
-
-### Colors
-- **Background Gradient**: `#0F172A` → `#020617`
-- **Primary Accent**: `#4F46E5` (Indigo)
-- **Secondary Accent**: `#EC4899` (Pink)
-- **Tertiary Accent**: `#FBBF24` (Yellow)
-- **Text Primary**: `#FFFFFF`
-- **Text Secondary**: `#9CA3AF`
-- **Card Background**: `#1F2937` / `#1E293B`
-- **Border**: `#334155` (subtle)
-
-### Typography
-- Using Google Fonts (system default for now)
-- Title: 18-20px, Bold
-- Body: 14-16px, Regular
-- Caption: 12-13px, Regular
-
-## 🐛 Known Issues
-
-1. **Voice Recognition**: May stop after one word if `ListenMode.confirmation` doesn't work properly
-2. **Gemini API**: Rate limiting may cause errors during testing
-3. **GPS**: Location permission must be granted manually in device settings
-4. **Mock Data**: Worker distances are hardcoded, not calculated from actual GPS
-
-## 📝 Notes
-
-- This is a **prototype/MVP** with heavy use of mock data
-- Real backend integration is not implemented
-- Focus is on demonstrating the voice-first UX flow
-- Worker data, tracking, payments are simulated
-
-## 🤝 Contributing
-
-This is an internal project. For questions or contributions, contact the development team.
-
-## 📄 License
-
-[Add license information here]
+- ⚠️ Web (voice input may be limited)
+- ⚠️ Desktop (not fully tested)
 
 ---
 
-**Last Updated**: January 10, 2026  
-**Version**: 0.1.0  
+## 🎨 10. Design System
+
+### Colors
+
+- Background gradient: `#0F172A` → `#020617`
+- Primary accent: `#4F46E5` (Indigo)
+- Secondary accent: `#EC4899` (Pink)
+- Tertiary accent: `#FBBF24` (Yellow)
+- Text primary: `#FFFFFF`
+- Text secondary: `#9CA3AF`
+- Card background: `#1F2937` / `#1E293B`
+- Border: `#334155`
+
+### Typography
+
+- Google Fonts (system defaults acceptable for now).
+- Title: 18–20 px, bold.
+- Body: 14–16 px, regular.
+- Caption: 12–13 px, regular.
+
+---
+
+## 🐛 11. Known Issues & Limitations
+
+1. Voice recognition may stop early on some devices depending on `speech_to_text` behavior.
+2. Gemini API rate limits can cause transient failures during heavy testing.
+3. GPS permissions must sometimes be granted manually in system settings.
+4. Distances to workers are **hardcoded**, not computed from real GPS.
+5. All data is local/mock – there is **no real backend** yet.
+
+---
+
+## 🤝 Contributing
+
+This is currently an internal prototype. For questions or contributions, contact the development team.
+
+---
+
+**Last Updated**: January 11, 2026  
+**Version**: 0.2.0  
 **Status**: MVP / Prototype

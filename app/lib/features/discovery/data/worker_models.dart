@@ -1,5 +1,7 @@
 import '../../../core/ai/gemini_service.dart';
 
+enum WorkerStatus { available, busy, off }
+
 class Worker {
   final String id;
   final String name;
@@ -10,6 +12,7 @@ class Worker {
   final bool verified;
   final double latitude;
   final double longitude;
+  final WorkerStatus status;
 
   Worker({
     required this.id,
@@ -21,5 +24,6 @@ class Worker {
     required this.verified,
     required this.latitude,
     required this.longitude,
+    this.status = WorkerStatus.available,
   });
 }

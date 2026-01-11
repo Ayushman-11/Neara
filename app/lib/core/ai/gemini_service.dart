@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -26,6 +27,7 @@ class EmergencyInterpretation {
 
 class SearchFilters {
   final ServiceCategory? serviceCategory;
+  final List<ServiceCategory> categories; // optional multi-select
   final double radiusKm;
   final double minRating;
   final bool verifiedOnly;
@@ -33,6 +35,7 @@ class SearchFilters {
 
   const SearchFilters({
     this.serviceCategory,
+    this.categories = const [],
     this.radiusKm = 50,
     this.minRating = 3.5,
     this.verifiedOnly = false,
@@ -41,6 +44,7 @@ class SearchFilters {
 
   SearchFilters copyWith({
     ServiceCategory? serviceCategory,
+    List<ServiceCategory>? categories,
     double? radiusKm,
     double? minRating,
     bool? verifiedOnly,
@@ -48,6 +52,7 @@ class SearchFilters {
   }) {
     return SearchFilters(
       serviceCategory: serviceCategory ?? this.serviceCategory,
+      categories: categories ?? this.categories,
       radiusKm: radiusKm ?? this.radiusKm,
       minRating: minRating ?? this.minRating,
       verifiedOnly: verifiedOnly ?? this.verifiedOnly,
@@ -101,33 +106,38 @@ class GeminiService {
         '{"issueSummary": string, "urgency": "low"|"medium"|"high", "locationHint": string, "serviceCategory": "mechanic"|"plumber"|"electrician"|"maid"|"other"}',
       );
 
-    final response = await _model.generateContent([
-      Content.text(prompt.toString()),
-    ]);
-    final text = response.text ?? '{}';
-    final map = _safeDecodeJson(text);
+    try {
+      final response = await _model
+          .generateContent([Content.text(prompt.toString())])
+          .timeout(const Duration(seconds: 10));
+      final text = response.text ?? '{}';
+      final map = _safeDecodeJson(text);
 
-    final urgency = switch (map['urgency']) {
-      'high' => EmergencyUrgency.high,
-      'medium' => EmergencyUrgency.medium,
-      'low' => EmergencyUrgency.low,
-      _ => EmergencyUrgency.medium,
-    };
+      final urgency = switch (map['urgency']) {
+        'high' => EmergencyUrgency.high,
+        'medium' => EmergencyUrgency.medium,
+        'low' => EmergencyUrgency.low,
+        _ => EmergencyUrgency.medium,
+      };
 
-    final service = switch (map['serviceCategory']) {
-      'mechanic' => ServiceCategory.mechanic,
-      'plumber' => ServiceCategory.plumber,
-      'electrician' => ServiceCategory.electrician,
-      'maid' => ServiceCategory.maid,
-      _ => ServiceCategory.other,
-    };
+      final service = switch (map['serviceCategory']) {
+        'mechanic' => ServiceCategory.mechanic,
+        'plumber' => ServiceCategory.plumber,
+        'electrician' => ServiceCategory.electrician,
+        'maid' => ServiceCategory.maid,
+        _ => ServiceCategory.other,
+      };
 
-    return EmergencyInterpretation(
-      issueSummary: map['issueSummary']?.toString() ?? transcript,
-      urgency: urgency,
-      locationHint: map['locationHint']?.toString() ?? '',
-      serviceCategory: service,
-    );
+      return EmergencyInterpretation(
+        issueSummary: map['issueSummary']?.toString() ?? transcript,
+        urgency: urgency,
+        locationHint: map['locationHint']?.toString() ?? '',
+        serviceCategory: service,
+      );
+    } on TimeoutException {
+      // Surface a clear, fast-failing error so the UI can show feedback
+      throw Exception('AI response took too long. Please try again.');
+    }
   }
 
   Future<SearchFilters> interpretSearch(String query) async {
@@ -145,43 +155,48 @@ class GeminiService {
       )
       ..writeln(' "genderPreference": "any"|"female"|"male" }');
 
-    final response = await _model.generateContent([
-      Content.text(prompt.toString()),
-    ]);
-    final text = response.text ?? '{}';
-    final map = _safeDecodeJson(text);
+    try {
+      final response = await _model
+          .generateContent([Content.text(prompt.toString())])
+          .timeout(const Duration(seconds: 8));
+      final text = response.text ?? '{}';
+      final map = _safeDecodeJson(text);
 
-    ServiceCategory? service;
-    switch (map['serviceCategory']) {
-      case 'mechanic':
-        service = ServiceCategory.mechanic;
-        break;
-      case 'plumber':
-        service = ServiceCategory.plumber;
-        break;
-      case 'electrician':
-        service = ServiceCategory.electrician;
-        break;
-      case 'maid':
-        service = ServiceCategory.maid;
-        break;
-      default:
-        service = null;
+      ServiceCategory? service;
+      switch (map['serviceCategory']) {
+        case 'mechanic':
+          service = ServiceCategory.mechanic;
+          break;
+        case 'plumber':
+          service = ServiceCategory.plumber;
+          break;
+        case 'electrician':
+          service = ServiceCategory.electrician;
+          break;
+        case 'maid':
+          service = ServiceCategory.maid;
+          break;
+        default:
+          service = null;
+      }
+
+      return SearchFilters(
+        serviceCategory: service,
+        radiusKm: (map['radiusKm'] is num)
+            ? (map['radiusKm'] as num).toDouble()
+            : 5,
+        minRating: (map['minRating'] is num)
+            ? (map['minRating'] as num).toDouble()
+            : 4.0,
+        verifiedOnly: map['verifiedOnly'] is bool
+            ? map['verifiedOnly'] as bool
+            : true,
+        genderPreference: map['genderPreference']?.toString() ?? 'any',
+      );
+    } on TimeoutException {
+      // Fall back quickly to current/default filters if AI is slow
+      return const SearchFilters();
     }
-
-    return SearchFilters(
-      serviceCategory: service,
-      radiusKm: (map['radiusKm'] is num)
-          ? (map['radiusKm'] as num).toDouble()
-          : 5,
-      minRating: (map['minRating'] is num)
-          ? (map['minRating'] as num).toDouble()
-          : 4.0,
-      verifiedOnly: map['verifiedOnly'] is bool
-          ? map['verifiedOnly'] as bool
-          : true,
-      genderPreference: map['genderPreference']?.toString() ?? 'any',
-    );
   }
 }
 
