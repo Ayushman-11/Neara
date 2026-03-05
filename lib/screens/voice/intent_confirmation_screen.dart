@@ -6,7 +6,44 @@ import '../../core/theme/app_theme.dart';
 import '../../widgets/status_chip.dart';
 
 class IntentConfirmationScreen extends StatelessWidget {
-  const IntentConfirmationScreen({super.key});
+  final String transcript;
+  final String category;
+  final String urgency;
+
+  const IntentConfirmationScreen({
+    super.key,
+    required this.transcript,
+    required this.category,
+    required this.urgency,
+  });
+
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'plumber':
+        return Icons.plumbing_rounded;
+      case 'electrician':
+        return Icons.electrical_services_rounded;
+      case 'mechanic':
+        return Icons.build_rounded;
+      case 'ac technician':
+      case 'ac repair':
+        return Icons.ac_unit_rounded;
+      case 'carpenter':
+        return Icons.chair_alt_rounded;
+      case 'painter':
+        return Icons.format_paint_rounded;
+      case 'cleaner':
+        return Icons.cleaning_services_rounded;
+      case 'pest control':
+        return Icons.pest_control_rounded;
+      case 'appliance repair':
+        return Icons.home_repair_service_rounded;
+      case 'gardener':
+        return Icons.park_rounded;
+      default:
+        return Icons.handyman_rounded;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,25 +97,27 @@ class IntentConfirmationScreen extends StatelessWidget {
                             const SizedBox(width: 6),
                             Text(
                               'AI DETECTED SERVICE',
-                              style: AppTextStyles.micro.copyWith(
-                                  color: AppColors.saffronAmber),
+                              style: AppTextStyles.micro
+                                  .copyWith(color: AppColors.saffronAmber),
                             ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         Row(
                           children: [
-                            const Icon(Icons.plumbing_rounded,
+                            Icon(_getCategoryIcon(category),
                                 color: AppColors.saffronAmber, size: 28),
                             const SizedBox(width: 12),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Plumber',
+                                Text(category,
                                     style: AppTextStyles.titleMedium),
                                 StatusChip(
-                                    label: 'Normal Urgency',
-                                    type: StatusChipType.warning),
+                                    label: urgency,
+                                    type: urgency.toLowerCase().contains('high')
+                                        ? StatusChipType.error
+                                        : StatusChipType.warning),
                               ],
                             ),
                           ],
@@ -88,7 +127,7 @@ class IntentConfirmationScreen extends StatelessWidget {
                             style: AppTextStyles.bodySmall),
                         const SizedBox(height: 4),
                         Text(
-                          'Water leakage in kitchen sink',
+                          transcript,
                           style: AppTextStyles.titleSmall,
                         ),
                       ],
@@ -112,7 +151,7 @@ class IntentConfirmationScreen extends StatelessWidget {
                     Text('You said:', style: AppTextStyles.bodySmall),
                     const SizedBox(height: 8),
                     Text(
-                      '"My kitchen sink is leaking badly."',
+                      '"$transcript"',
                       style: AppTextStyles.bodyMedium.copyWith(
                           fontStyle: FontStyle.italic,
                           color: AppColors.softMoonlight),
@@ -138,7 +177,7 @@ class IntentConfirmationScreen extends StatelessWidget {
               ).animate().fadeIn(delay: 350.ms),
               const Spacer(),
               ElevatedButton(
-                onPressed: () => context.go('/workers'),
+                onPressed: () => context.go('/workers', extra: category),
                 child: const Text('Yes, find workers →'),
               ).animate().fadeIn(delay: 450.ms),
               const SizedBox(height: 12),

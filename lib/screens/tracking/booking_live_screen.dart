@@ -13,7 +13,7 @@ class BookingLiveScreen extends StatefulWidget {
 }
 
 class _BookingLiveScreenState extends State<BookingLiveScreen> {
-  int _currentStep = 1; // 0=Sent, 1=Accepted, 2=Arrived, 3=InProgress, 4=Done
+  final int _currentStep = 1; // 0=Sent, 1=Accepted, 2=Arrived, 3=InProgress, 4=Done
 
   final List<Map<String, dynamic>> _steps = [
     {'icon': Icons.send_rounded, 'label': 'Requested'},
@@ -53,7 +53,7 @@ class _BookingLiveScreenState extends State<BookingLiveScreen> {
                   top: 100,
                   child: Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.saffronAmber,
                       shape: BoxShape.circle,
                       boxShadow: [
@@ -108,7 +108,7 @@ class _BookingLiveScreenState extends State<BookingLiveScreen> {
                 children: [
                   Row(
                     children: [
-                      StatusChip(label: 'Worker Coming', type: StatusChipType.warning),
+                      const StatusChip(label: 'Worker Coming', type: StatusChipType.warning),
                       const Spacer(),
                       Row(
                         children: [
@@ -157,7 +157,7 @@ class _BookingLiveScreenState extends State<BookingLiveScreen> {
                         IconButton(
                           icon: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: AppColors.elevatedGraphite,
                               shape: BoxShape.circle,
                             ),
@@ -169,7 +169,7 @@ class _BookingLiveScreenState extends State<BookingLiveScreen> {
                         IconButton(
                           icon: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: AppColors.elevatedGraphite,
                               shape: BoxShape.circle,
                             ),

@@ -114,19 +114,19 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
                             child: _activated
                                 ? Text(
                                     '$_countdown',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 64,
                                       fontWeight: FontWeight.w800,
                                     ),
                                   )
-                                : Column(
+                                : const Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Icon(Icons.sos_rounded,
+                                      Icon(Icons.sos_rounded,
                                           color: Colors.white, size: 44),
-                                      const SizedBox(height: 4),
-                                      const Text('SOS',
+                                      SizedBox(height: 4),
+                                      Text('SOS',
                                           style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 18,

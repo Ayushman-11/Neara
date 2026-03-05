@@ -74,9 +74,9 @@ class WorkerCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       if (isTopRated)
-                        StatusChip(label: 'Top Rated', type: StatusChipType.accent),
+                        const StatusChip(label: 'Top Rated', type: StatusChipType.accent),
                       if (isClosest && !isTopRated)
-                        StatusChip(label: 'Closest', type: StatusChipType.online),
+                        const StatusChip(label: 'Closest', type: StatusChipType.online),
                     ],
                   ),
                   const SizedBox(height: 2),

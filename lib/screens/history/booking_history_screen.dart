@@ -11,9 +11,9 @@ class BookingHistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bookings = MockData.bookings;
+    const bookings = MockData.bookings;
 
-    StatusChipType _statusType(String status) {
+    StatusChipType statusType(String status) {
       switch (status.toLowerCase()) {
         case 'completed':
           return StatusChipType.success;
@@ -55,7 +55,7 @@ class BookingHistoryScreen extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppColors.elevatedGraphite,
                         shape: BoxShape.circle,
                       ),
@@ -75,7 +75,7 @@ class BookingHistoryScreen extends StatelessWidget {
                       ),
                     ),
                     StatusChip(
-                        label: b.status, type: _statusType(b.status)),
+                        label: b.status, type: statusType(b.status)),
                   ],
                 ),
                 const Divider(height: 20),

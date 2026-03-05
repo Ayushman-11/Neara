@@ -7,7 +7,8 @@ import '../../core/mock/mock_data.dart';
 import '../../widgets/worker_card.dart';
 
 class WorkerListScreen extends StatefulWidget {
-  const WorkerListScreen({super.key});
+  final String? categoryFilter;
+  const WorkerListScreen({super.key, this.categoryFilter});
 
   @override
   State<WorkerListScreen> createState() => _WorkerListScreenState();
@@ -15,10 +16,24 @@ class WorkerListScreen extends StatefulWidget {
 
 class _WorkerListScreenState extends State<WorkerListScreen> {
   int _sortIndex = 0;
-  final List<String> _sortOptions = ['Best Match', 'Nearest', 'Top Rated', 'Most Jobs'];
+  final List<String> _sortOptions = [
+    'Best Match',
+    'Nearest',
+    'Top Rated',
+    'Most Jobs'
+  ];
 
   List _sortedWorkers() {
-    final workers = List.of(MockData.workers);
+    var workers = List.of(MockData.workers);
+
+    // Apply category filter if present
+    if (widget.categoryFilter != null) {
+      workers = workers
+          .where((w) =>
+              w.category.toLowerCase() == widget.categoryFilter!.toLowerCase())
+          .toList();
+    }
+
     switch (_sortIndex) {
       case 1:
         workers.sort((a, b) => a.distanceKm.compareTo(b.distanceKm));
@@ -36,10 +51,14 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
   @override
   Widget build(BuildContext context) {
     final workers = _sortedWorkers();
+    final title = widget.categoryFilter != null
+        ? '${widget.categoryFilter}s near you'
+        : 'Workers near you';
+
     return Scaffold(
       backgroundColor: AppColors.midnightNavy,
       appBar: AppBar(
-        title: const Text('Plumbers near you'),
+        title: Text(title),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.go('/home'),
@@ -64,7 +83,8 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                 const SizedBox(width: 6),
                 Text(
                   '${workers.length} workers found · within 5 km',
-                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.liveTeal),
+                  style: AppTextStyles.bodySmall
+                      .copyWith(color: AppColors.liveTeal),
                 ),
               ],
             ),
@@ -83,18 +103,25 @@ class _WorkerListScreenState extends State<WorkerListScreen> {
                 return GestureDetector(
                   onTap: () => setState(() => _sortIndex = index),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
-                      color: isActive ? AppColors.saffronAmber : AppColors.elevatedGraphite,
+                      color: isActive
+                          ? AppColors.saffronAmber
+                          : AppColors.elevatedGraphite,
                       borderRadius: BorderRadius.circular(999),
                       border: Border.all(
-                        color: isActive ? AppColors.saffronAmber : AppColors.mutedSteel,
+                        color: isActive
+                            ? AppColors.saffronAmber
+                            : AppColors.mutedSteel,
                       ),
                     ),
                     child: Text(
                       _sortOptions[index],
                       style: AppTextStyles.label.copyWith(
-                        color: isActive ? AppColors.midnightNavy : AppColors.softMoonlight,
+                        color: isActive
+                            ? AppColors.midnightNavy
+                            : AppColors.softMoonlight,
                       ),
                     ),
                   ),

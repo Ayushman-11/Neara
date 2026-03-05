@@ -265,7 +265,7 @@ class _VoiceCTA extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.saffronAmber,
                   shape: BoxShape.circle,
                   boxShadow: [

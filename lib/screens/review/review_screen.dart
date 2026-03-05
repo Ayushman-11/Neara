@@ -122,8 +122,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   final selected = _selectedTags.contains(tag);
                   return GestureDetector(
                     onTap: () => setState(() {
-                      if (selected) _selectedTags.remove(tag);
-                      else _selectedTags.add(tag);
+                      if (selected) {
+                        _selectedTags.remove(tag);
+                      } else {
+                        _selectedTags.add(tag);
+                      }
                     }),
                     child: Container(
                       padding: const EdgeInsets.symmetric(

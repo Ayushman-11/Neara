@@ -49,15 +49,15 @@ class RequestStatusScreen extends StatelessWidget {
                   textAlign: TextAlign.center).animate().fadeIn(delay: 200.ms),
               const SizedBox(height: 32),
               // Status timeline
-              _StatusStep(
+              const _StatusStep(
                   icon: Icons.send_rounded,
                   label: 'Request sent',
                   isComplete: true),
-              _StatusStep(
+              const _StatusStep(
                   icon: Icons.check_circle_outline_rounded,
                   label: 'Worker accepted',
                   isComplete: false),
-              _StatusStep(
+              const _StatusStep(
                   icon: Icons.description_rounded,
                   label: 'Proposal received',
                   isComplete: false),
@@ -90,7 +90,7 @@ class RequestStatusScreen extends StatelessWidget {
                       ],
                     ),
                     const Spacer(),
-                    StatusChip(label: 'Pending', type: StatusChipType.warning),
+                    const StatusChip(label: 'Pending', type: StatusChipType.warning),
                   ],
                 ),
               ).animate().fadeIn(delay: 600.ms),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../core/ai/ai_providers.dart';
-import '../../../core/ai/gemini_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../discovery/presentation/worker_discovery_screen.dart';
 
@@ -60,7 +60,7 @@ class _VoiceAgentScreenState extends ConsumerState<VoiceAgentScreen> {
       );
 
       try {
-        // Interpret the voice input with Gemini
+        // Interpret the voice input with OpenRouter
         await ref
             .read(emergencyInterpretationProvider.notifier)
             .interpret(input);
@@ -145,7 +145,9 @@ class _VoiceAgentScreenState extends ConsumerState<VoiceAgentScreen> {
                             gradient: AppGradients.accentGradient,
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF6366F1).withOpacity(0.3),
+                                color: const Color(
+                                  0xFF6366F1,
+                                ).withValues(alpha: 0.3),
                                 blurRadius: 40,
                                 spreadRadius: 8,
                               ),
@@ -247,7 +249,7 @@ class _ExampleQuestionChip extends StatelessWidget {
           border: Border.all(color: const Color(0xFFE2E8F0)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -282,7 +284,7 @@ class _HomeAppBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -329,7 +331,7 @@ class _HomeAppBar extends StatelessWidget {
                 gradient: AppGradients.accentGradient,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
+                    color: Colors.black.withValues(alpha: 0.25),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -424,7 +426,7 @@ class _BottomInputBarState extends State<_BottomInputBar> {
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withValues(alpha: 0.12),
               blurRadius: 20,
               offset: const Offset(0, 6),
             ),
@@ -472,7 +474,7 @@ class _BottomInputBarState extends State<_BottomInputBar> {
                   gradient: AppGradients.accentGradient,
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF6366F1).withOpacity(0.4),
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.4),
                       blurRadius: 12,
                       spreadRadius: 2,
                     ),
@@ -506,10 +508,10 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final stt.SpeechToText _speech;
-  bool _isListening = false;
   String _currentTranscript = '';
-  String _geminiResult = '';
+  String _openrouterResult = '';
   bool _isProcessing = false;
+  bool _speechEnabled = false;
 
   @override
   void initState() {
@@ -530,8 +532,25 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
   }
 
   Future<void> _startListening() async {
-    final available = await _speech.initialize();
-    if (!available) {
+    // Request microphone permission at runtime
+    var status = await Permission.microphone.status;
+    if (status.isDenied) {
+      status = await Permission.microphone.request();
+      if (!status.isGranted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Microphone permission denied.')),
+          );
+        }
+        return;
+      }
+    }
+
+    if (!_speechEnabled) {
+      _speechEnabled = await _speech.initialize();
+    }
+
+    if (!_speechEnabled) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -540,14 +559,9 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
             ),
           ),
         );
-        Navigator.of(context).pop();
       }
       return;
     }
-
-    setState(() {
-      _isListening = true;
-    });
 
     await _speech.listen(
       onResult: (result) {
@@ -556,25 +570,21 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
             _currentTranscript = result.recognizedWords;
           });
 
-          // Process with Gemini if we have enough text
+          // Process with OpenRouter if we have enough text
           if (result.recognizedWords.length > 10 && !_isProcessing) {
-            _processWithGemini(result.recognizedWords);
+            _processWithOpenRouter(result.recognizedWords);
           }
 
           if (result.finalResult && result.recognizedWords.isNotEmpty) {
-            _processWithGemini(result.recognizedWords);
+            _processWithOpenRouter(result.recognizedWords);
           }
         }
       },
       listenFor: const Duration(seconds: 60),
-      pauseFor: const Duration(seconds: 5),
-      partialResults: true,
-      onDevice: false,
-      listenMode: stt.ListenMode.confirmation,
     );
   }
 
-  Future<void> _processWithGemini(String transcript) async {
+  Future<void> _processWithOpenRouter(String transcript) async {
     if (_isProcessing || transcript.isEmpty) return;
 
     setState(() {
@@ -592,7 +602,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
         data: (interpretation) {
           if (mounted && interpretation != null) {
             setState(() {
-              _geminiResult =
+              _openrouterResult =
                   'Service: ${interpretation.serviceCategory.name.toUpperCase()}\n'
                   'Location: ${interpretation.locationHint.isNotEmpty ? interpretation.locationHint : "Current location"}\n'
                   'Urgency: ${interpretation.urgency.name.toUpperCase()}\n'
@@ -607,22 +617,22 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
         error: (error, stack) {
           if (mounted) {
             setState(() {
-              _geminiResult =
+              _openrouterResult =
                   'Error: ${error.toString()}\nPlease check your internet connection and API key.';
               _isProcessing = false;
             });
-            print('Gemini Error: $error');
-            print('Stack: $stack');
+            debugPrint('OpenRouter Error: $error');
+            debugPrint('Stack: $stack');
           }
         },
       );
     } catch (e) {
       if (mounted) {
         setState(() {
-          _geminiResult = 'Error processing: ${e.toString()}';
+          _openrouterResult = 'Error processing: ${e.toString()}';
           _isProcessing = false;
         });
-        print('Process error: $e');
+        debugPrint('Process error: $e');
       }
     }
   }
@@ -636,159 +646,6 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
     } else {
       Navigator.of(context).pop();
     }
-  }
-
-  void _showConfirmationDialog() {
-    final interpretation = ref.read(emergencyInterpretationProvider).value;
-
-    if (interpretation == null) {
-      widget.onTranscriptComplete(_currentTranscript);
-      return;
-    }
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1F2937),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.check_circle_outline, color: Color(0xFF4F46E5)),
-            SizedBox(width: 12),
-            Flexible(
-              child: Text(
-                'Confirm Details',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Your request:',
-                style: TextStyle(
-                  color: Color(0xFF9CA3AF),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '"$_currentTranscript"',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFF4F46E5).withOpacity(0.3),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildConfirmationRow(
-                      'Service',
-                      interpretation.serviceCategory.name.toUpperCase(),
-                      Icons.build,
-                    ),
-                    const SizedBox(height: 8),
-                    _buildConfirmationRow(
-                      'Location',
-                      interpretation.locationHint.isNotEmpty
-                          ? interpretation.locationHint
-                          : 'Current location',
-                      Icons.location_on,
-                    ),
-                    const SizedBox(height: 8),
-                    _buildConfirmationRow(
-                      'Urgency',
-                      interpretation.urgency.name.toUpperCase(),
-                      Icons.priority_high,
-                    ),
-                    const SizedBox(height: 8),
-                    _buildConfirmationRow(
-                      'Issue',
-                      interpretation.issueSummary,
-                      Icons.info_outline,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
-            },
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Color(0xFF9CA3AF)),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).pop(); // Close bottom sheet
-              // Small delay to ensure navigation completes
-              await Future.delayed(const Duration(milliseconds: 100));
-              if (mounted) {
-                widget.onTranscriptComplete(_currentTranscript);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4F46E5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'Find Workers',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildConfirmationRow(String label, String value, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: const Color(0xFF4F46E5)),
-        const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: const TextStyle(
-            color: Color(0xFF9CA3AF),
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
   }
 
   @override
@@ -838,7 +695,9 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                             gradient: AppGradients.accentGradient,
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF6366F1).withOpacity(0.4),
+                                color: const Color(
+                                  0xFF6366F1,
+                                ).withValues(alpha: 0.4),
                                 blurRadius: 40,
                                 spreadRadius: 10,
                               ),
@@ -870,7 +729,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                             height: 1.5,
                           ),
                         ),
-                        if (_geminiResult.isNotEmpty) ...[
+                        if (_openrouterResult.isNotEmpty) ...[
                           const SizedBox(height: 24),
                           Container(
                             padding: const EdgeInsets.all(16),
@@ -912,7 +771,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  _geminiResult,
+                                  _openrouterResult,
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 14,
@@ -963,7 +822,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                 borderRadius: BorderRadius.circular(26),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6366F1).withOpacity(0.3),
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),

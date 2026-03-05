@@ -86,16 +86,16 @@ class ProfileScreen extends StatelessWidget {
               ).animate().fadeIn(delay: 100.ms),
               const SizedBox(height: 20),
               // Stats
-              Row(
+              const Row(
                 children: [
                   Expanded(
                     child: _StatCard(label: 'Bookings', value: '4'),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: _StatCard(label: 'Reviews', value: '3'),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: _StatCard(label: 'Savings', value: '₹45'),
                   ),

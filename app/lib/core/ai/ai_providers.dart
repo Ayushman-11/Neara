@@ -1,10 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'openrouter_service.dart';
 import 'gemini_service.dart';
 
-final geminiServiceProvider = Provider<GeminiService>((ref) {
-  return GeminiService();
+final openrouterServiceProvider = Provider<OpenRouterService>((ref) {
+  return OpenRouterService();
 });
 
 final emergencyInterpretationProvider =
@@ -44,10 +45,10 @@ class EmergencyController
       }
 
       final result = await _ref
-          .read(geminiServiceProvider)
+          .read(openrouterServiceProvider)
           .interpretEmergency(transcript: transcript, lat: lat, lng: lng);
 
-      // Always provide location hint - use GPS if Gemini didn't provide one
+      // Always provide location hint - use GPS if OpenRouter didn't provide one
       String locationHint = result.locationHint;
       if (locationHint.isEmpty && lat != null && lng != null) {
         locationHint =
@@ -65,8 +66,8 @@ class EmergencyController
 
       state = AsyncValue.data(augmented);
     } catch (e, stack) {
-      // Log the actual error for debugging
-      print('Gemini API Error: $e');
+      // Log actual error for debugging
+      print('OpenRouter API Error: $e');
       print('Stack trace: $stack');
 
       // Set error state instead of fallback so we can see what went wrong
@@ -88,7 +89,7 @@ class SearchFiltersController extends StateNotifier<SearchFilters> {
   Future<void> fromQuery(String query) async {
     try {
       final aiFilters = await _ref
-          .read(geminiServiceProvider)
+          .read(openrouterServiceProvider)
           .interpretSearch(query);
       state = aiFilters;
     } catch (_) {

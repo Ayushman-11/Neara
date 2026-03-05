@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -55,8 +53,14 @@ class _WorkerDiscoveryScreenState extends ConsumerState<WorkerDiscoveryScreen> {
       ServiceCategory.plumber => BitmapDescriptor.hueBlue,
       ServiceCategory.electrician => BitmapDescriptor.hueYellow,
       ServiceCategory.mechanic => BitmapDescriptor.hueRed,
-      ServiceCategory.maid => BitmapDescriptor.hueMagenta,
-      ServiceCategory.other => BitmapDescriptor.hueOrange,
+      ServiceCategory.cleaner => BitmapDescriptor.hueMagenta,
+      ServiceCategory.carpenter => BitmapDescriptor.hueOrange,
+      ServiceCategory.painter => BitmapDescriptor.hueCyan,
+      ServiceCategory.acTechnician => BitmapDescriptor.hueAzure,
+      ServiceCategory.applianceRepair => BitmapDescriptor.hueRose,
+      ServiceCategory.pestControl => BitmapDescriptor.hueViolet,
+      ServiceCategory.gardener => BitmapDescriptor.hueGreen,
+      _ => BitmapDescriptor.hueOrange,
     };
   }
 
@@ -202,7 +206,7 @@ class _FloatingSearchBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -295,7 +299,7 @@ class _FloatingFilterPanelState extends ConsumerState<_FloatingFilterPanel> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -380,7 +384,7 @@ class _FloatingFilterPanelState extends ConsumerState<_FloatingFilterPanel> {
                 activeTrackColor: const Color(0xFF6366F1),
                 inactiveTrackColor: const Color(0xFFE2E8F0),
                 thumbColor: const Color(0xFF6366F1),
-                overlayColor: const Color(0xFF6366F1).withOpacity(0.2),
+                overlayColor: const Color(0xFF6366F1).withValues(alpha: 0.2),
               ),
               child: Slider(
                 value: _radiusKm,
@@ -422,7 +426,7 @@ class _FloatingFilterPanelState extends ConsumerState<_FloatingFilterPanel> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6366F1).withOpacity(0.3),
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -499,7 +503,7 @@ class _WorkerListView extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -557,7 +561,7 @@ class _WorkerCardVertical extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 2),
           ),
@@ -610,7 +614,9 @@ class _WorkerCardVertical extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withOpacity(0.15),
+                          color: const Color(
+                            0xFF10B981,
+                          ).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Row(
@@ -665,7 +671,7 @@ class _WorkerCardVertical extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFBBF24).withOpacity(0.2),
+                        color: const Color(0xFFFBBF24).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Row(
@@ -739,8 +745,8 @@ class _FilterToggleRow extends StatelessWidget {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: const Color(0xFF6366F1),
-          activeTrackColor: const Color(0xFF6366F1).withOpacity(0.5),
+          activeThumbColor: const Color(0xFF6366F1),
+          activeTrackColor: const Color(0xFF6366F1).withValues(alpha: 0.5),
         ),
       ],
     );
@@ -802,7 +808,7 @@ class _GlassButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 12,
               offset: const Offset(0, 2),
             ),
@@ -833,7 +839,7 @@ class _BottomWorkerList extends ConsumerWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),
@@ -943,7 +949,7 @@ class _WorkerCardHorizontal extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withOpacity(0.15),
+                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -1097,7 +1103,7 @@ class _WorkerDetailSheet extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: _statusColor.withOpacity(0.12),
+                  color: _statusColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Row(
@@ -1131,7 +1137,7 @@ class _WorkerDetailSheet extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFBBF24).withOpacity(0.15),
+                  color: const Color(0xFFFBBF24).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -1186,7 +1192,7 @@ class _WorkerDetailSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6366F1).withOpacity(0.3),
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),

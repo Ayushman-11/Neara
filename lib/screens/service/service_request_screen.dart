@@ -59,15 +59,15 @@ class ServiceRequestScreen extends StatelessWidget {
               const SizedBox(height: 20),
               Text('Request Details', style: AppTextStyles.titleSmall),
               const SizedBox(height: 14),
-              _DetailRow(label: 'Service', value: 'Plumber'),
+              const _DetailRow(label: 'Service', value: 'Plumber'),
               const Divider(height: 24),
-              _DetailRow(
+              const _DetailRow(
                   label: 'Location',
                   value: 'Flat 4B, Silver Oaks, Koregaon Park, Pune 411001'),
               const Divider(height: 24),
-              _DetailRow(label: 'Problem', value: 'Water leakage in kitchen sink'),
+              const _DetailRow(label: 'Problem', value: 'Water leakage in kitchen sink'),
               const Divider(height: 24),
-              _DetailRow(label: 'Urgency', value: 'Normal'),
+              const _DetailRow(label: 'Urgency', value: 'Normal'),
               const SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.all(12),

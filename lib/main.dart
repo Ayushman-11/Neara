@@ -1,8 +1,17 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/theme/app_theme.dart';
 import 'core/router/app_router.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load .env in background to avoid blocking the splash screen / main UI thread
+  unawaited(dotenv.load(fileName: ".env").catchError((e) {
+    debugPrint("Warning: Could not load .env file: $e");
+  }));
+
   runApp(const NearaApp());
 }
 

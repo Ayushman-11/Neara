@@ -38,7 +38,7 @@ class _ProposalScreenState extends State<ProposalScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final p = MockData.mockProposal;
+    const p = MockData.mockProposal;
     final worker = MockData.workers.first;
 
     return Scaffold(

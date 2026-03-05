@@ -17,7 +17,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final p = MockData.mockProposal;
+    const p = MockData.mockProposal;
 
     return Scaffold(
       backgroundColor: AppColors.midnightNavy,
@@ -27,9 +27,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.go('/proposal'),
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(right: 16),
+            padding: EdgeInsets.only(right: 16),
             child: Icon(Icons.lock_rounded, color: AppColors.liveTeal, size: 20),
           ),
         ],
@@ -100,11 +100,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
               const SizedBox(height: 12),
               // Payment methods
               ...[
-                _PaymentMethod(
+                const _PaymentMethod(
                     index: 0, icon: Icons.account_balance_wallet_rounded, label: 'UPI'),
-                _PaymentMethod(
+                const _PaymentMethod(
                     index: 1, icon: Icons.credit_card_rounded, label: 'Credit / Debit Card'),
-                _PaymentMethod(
+                const _PaymentMethod(
                     index: 2, icon: Icons.corporate_fare_rounded, label: 'Net Banking'),
               ].map((m) => GestureDetector(
                     onTap: () => setState(() => _selectedMethod = m.index),

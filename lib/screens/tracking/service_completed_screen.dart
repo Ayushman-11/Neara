@@ -53,12 +53,12 @@ class ServiceCompletedScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.mutedSteel),
                 ),
-                child: Column(
+                child: const Column(
                   children: [
                     _Row(label: 'Total Cost', value: '₹400'),
-                    const Divider(height: 20),
+                    Divider(height: 20),
                     _Row(label: 'Advance Paid', value: '₹200'),
-                    const Divider(height: 20),
+                    Divider(height: 20),
                     _Row(
                         label: 'Balance Due',
                         value: '₹200',

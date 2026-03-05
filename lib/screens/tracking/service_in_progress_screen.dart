@@ -41,7 +41,7 @@ class ServiceInProgressScreen extends StatelessWidget {
                       end: const Offset(1.06, 1.06),
                       duration: 800.ms),
               const SizedBox(height: 16),
-              StatusChip(label: 'In Progress', type: StatusChipType.warning),
+              const StatusChip(label: 'In Progress', type: StatusChipType.warning),
               const SizedBox(height: 12),
               Text('Ramesh is working…', style: AppTextStyles.titleMedium)
                   .animate()
@@ -58,14 +58,14 @@ class ServiceInProgressScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppColors.mutedSteel),
                 ),
-                child: Column(
+                child: const Column(
                   children: [
                     _InfoRow(icon: Icons.access_time_rounded,
                         label: 'Started at', value: '11:34 AM'),
-                    const Divider(height: 20),
+                    Divider(height: 20),
                     _InfoRow(icon: Icons.attach_money_rounded,
                         label: 'Advance Paid', value: '₹200'),
-                    const Divider(height: 20),
+                    Divider(height: 20),
                     _InfoRow(icon: Icons.account_balance_rounded,
                         label: 'Held in Escrow', value: '₹200'),
                   ],

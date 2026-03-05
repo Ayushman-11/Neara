@@ -35,8 +35,12 @@ class _OtpScreenState extends State<OtpScreen> {
 
   @override
   void dispose() {
-    for (var c in _controllers) c.dispose();
-    for (var f in _focusNodes) f.dispose();
+    for (var c in _controllers) {
+      c.dispose();
+    }
+    for (var f in _focusNodes) {
+      f.dispose();
+    }
     super.dispose();
   }
 
@@ -124,7 +128,7 @@ class _OtpScreenState extends State<OtpScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.sms_rounded, size: 14, color: AppColors.liveTeal),
+                  const Icon(Icons.sms_rounded, size: 14, color: AppColors.liveTeal),
                   const SizedBox(width: 6),
                   if (_resendSeconds > 0)
                     Text(

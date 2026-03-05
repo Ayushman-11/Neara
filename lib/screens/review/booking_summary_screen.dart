@@ -64,15 +64,15 @@ class BookingSummaryScreen extends StatelessWidget {
                   children: [
                     Text('Summary', style: AppTextStyles.titleSmall),
                     const SizedBox(height: 16),
-                    _Row(label: 'Service', value: 'Plumbing'),
+                    const _Row(label: 'Service', value: 'Plumbing'),
                     const Divider(height: 16),
-                    _Row(label: 'Worker', value: 'Ramesh Sharma'),
+                    const _Row(label: 'Worker', value: 'Ramesh Sharma'),
                     const Divider(height: 16),
-                    _Row(label: 'Date', value: '15 Mar 2024'),
+                    const _Row(label: 'Date', value: '15 Mar 2024'),
                     const Divider(height: 16),
-                    _Row(label: 'Duration', value: '1h 25m'),
+                    const _Row(label: 'Duration', value: '1h 25m'),
                     const Divider(height: 16),
-                    _Row(
+                    const _Row(
                         label: 'Total Paid',
                         value: '₹400',
                         valueColor: AppColors.saffronAmber),
@@ -81,7 +81,7 @@ class BookingSummaryScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Status', style: AppTextStyles.bodySmall),
-                        StatusChip(
+                        const StatusChip(
                             label: 'Completed', type: StatusChipType.success),
                       ],
                     ),

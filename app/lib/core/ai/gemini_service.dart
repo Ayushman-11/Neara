@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
@@ -9,7 +10,19 @@ String get kGeminiApiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
 
 enum EmergencyUrgency { low, medium, high }
 
-enum ServiceCategory { mechanic, plumber, electrician, maid, other }
+enum ServiceCategory {
+  plumber,
+  carpenter,
+  electrician,
+  painter,
+  acTechnician,
+  applianceRepair,
+  cleaner,
+  pestControl,
+  mechanic,
+  gardener,
+  other,
+}
 
 class EmergencyInterpretation {
   final String issueSummary;
@@ -63,10 +76,13 @@ class SearchFilters {
 
 class GeminiService {
   GeminiService()
-    // Use gemini-2.5-flash which is the latest fast model
     : _model = GenerativeModel(
-        model: 'gemini-2.5-flash',
+        model: 'gemini-1.5-flash',
         apiKey: kGeminiApiKey,
+        generationConfig: GenerationConfig(
+          temperature: 0.1,
+          responseMimeType: 'application/json',
+        ),
       );
 
   final GenerativeModel _model;
@@ -77,9 +93,9 @@ class GeminiService {
       final response = await _model.generateContent([
         Content.text('List available models'),
       ]);
-      print('Available models check: ${response.text}');
+      debugPrint('Available models check: ${response.text}');
     } catch (e) {
-      print('Error checking models: $e');
+      debugPrint('Error checking models: $e');
     }
   }
 
@@ -90,21 +106,47 @@ class GeminiService {
   }) async {
     final prompt = StringBuffer()
       ..writeln(
-        'You are an assistant for an Indian on-demand worker app for emergencies.',
+        'You are an AI service classifier for a home services app called Neara.',
       )
+      ..writeln(
+        'Your job is to analyze the user\'s problem description and return the most appropriate service category and emergency details.',
+      )
+      ..writeln()
+      ..writeln('Available service categories:')
+      ..writeln('- Plumber')
+      ..writeln('- Carpenter')
+      ..writeln('- Electrician')
+      ..writeln('- Painter')
+      ..writeln('- AC Technician')
+      ..writeln('- Appliance Repair')
+      ..writeln('- Cleaner')
+      ..writeln('- Pest Control')
+      ..writeln('- Mechanic')
+      ..writeln('- Gardener')
+      ..writeln('- Other')
+      ..writeln()
+      ..writeln('Rules:')
+      ..writeln('1. Only return ONE service category from the list.')
+      ..writeln('2. Do NOT explain anything.')
+      ..writeln('3. Do NOT return sentences.')
+      ..writeln('4. Only return the exact category name.')
+      ..writeln()
       ..writeln('User speech transcript: "$transcript"')
       ..writeln(
         lat != null && lng != null
-            ? 'User GPS coordinates (lat,lng): $lat,$lng. Use these only to refine the locationHint (e.g., nearby area name) and you may also include the coordinates.'
-            : 'No GPS coordinates available for this request.',
+            ? 'User GPS coordinates (lat,lng): $lat,$lng. Use these to refine locationHint.'
+            : 'No GPS coordinates available.',
       )
+      ..writeln()
+      ..writeln('Return output in this JSON format only:')
+      ..writeln('{')
+      ..writeln('  "issueSummary": string,')
+      ..writeln('  "urgency": "low"|"medium"|"high",')
+      ..writeln('  "locationHint": string,')
       ..writeln(
-        'If location hints like NH4 or areas are present, keep them as text.',
+        '  "service": "Plumber"|"Carpenter"|"Electrician"|"Painter"|"AC Technician"|"Appliance Repair"|"Cleaner"|"Pest Control"|"Mechanic"|"Gardener"|"Other"',
       )
-      ..writeln('Respond ONLY as compact JSON with keys:')
-      ..writeln(
-        '{"issueSummary": string, "urgency": "low"|"medium"|"high", "locationHint": string, "serviceCategory": "mechanic"|"plumber"|"electrician"|"maid"|"other"}',
-      );
+      ..writeln('}');
 
     try {
       final response = await _model
@@ -120,11 +162,19 @@ class GeminiService {
         _ => EmergencyUrgency.medium,
       };
 
-      final service = switch (map['serviceCategory']) {
-        'mechanic' => ServiceCategory.mechanic,
+      final serviceStr = map['service']?.toString().toLowerCase() ?? '';
+      final service = switch (serviceStr) {
         'plumber' => ServiceCategory.plumber,
+        'carpenter' => ServiceCategory.carpenter,
         'electrician' => ServiceCategory.electrician,
-        'maid' => ServiceCategory.maid,
+        'painter' => ServiceCategory.painter,
+        'ac technician' || 'actechnician' => ServiceCategory.acTechnician,
+        'appliance repair' ||
+        'appliancerepair' => ServiceCategory.applianceRepair,
+        'cleaner' => ServiceCategory.cleaner,
+        'pest control' || 'pestcontrol' => ServiceCategory.pestControl,
+        'mechanic' => ServiceCategory.mechanic,
+        'gardener' => ServiceCategory.gardener,
         _ => ServiceCategory.other,
       };
 
@@ -146,14 +196,37 @@ class GeminiService {
         'You help map natural language to filters for an Indian local worker app.',
       )
       ..writeln('User query: "$query"')
+      ..writeln()
+      ..writeln('Available service categories:')
+      ..writeln('- Plumber')
+      ..writeln('- Carpenter')
+      ..writeln('- Electrician')
+      ..writeln('- Painter')
+      ..writeln('- AC Technician')
+      ..writeln('- Appliance Repair')
+      ..writeln('- Cleaner')
+      ..writeln('- Pest Control')
+      ..writeln('- Mechanic')
+      ..writeln('- Gardener')
+      ..writeln('- Other')
+      ..writeln()
+      ..writeln('Rules for service classification:')
+      ..writeln(
+        '1. Only return ONE service category from the list if applicable, or null if unrelated.',
+      )
+      ..writeln('2. Do NOT explain anything.')
+      ..writeln('3. Only return the exact category name.')
+      ..writeln()
       ..writeln('Respond ONLY as compact JSON with keys:')
+      ..writeln('{')
       ..writeln(
-        '{"serviceCategory": "mechanic"|"plumber"|"electrician"|"maid"|"other"|null,',
+        '  "service": "Plumber"|"Carpenter"|"Electrician"|"Painter"|"AC Technician"|"Appliance Repair"|"Cleaner"|"Pest Control"|"Mechanic"|"Gardener"|"Other"|null,',
       )
-      ..writeln(
-        ' "radiusKm": number, "minRating": number, "verifiedOnly": boolean,',
-      )
-      ..writeln(' "genderPreference": "any"|"female"|"male" }');
+      ..writeln('  "radiusKm": number,')
+      ..writeln('  "minRating": number,')
+      ..writeln('  "verifiedOnly": boolean,')
+      ..writeln('  "genderPreference": "any"|"female"|"male"')
+      ..writeln('}');
 
     try {
       final response = await _model
@@ -162,23 +235,21 @@ class GeminiService {
       final text = response.text ?? '{}';
       final map = _safeDecodeJson(text);
 
-      ServiceCategory? service;
-      switch (map['serviceCategory']) {
-        case 'mechanic':
-          service = ServiceCategory.mechanic;
-          break;
-        case 'plumber':
-          service = ServiceCategory.plumber;
-          break;
-        case 'electrician':
-          service = ServiceCategory.electrician;
-          break;
-        case 'maid':
-          service = ServiceCategory.maid;
-          break;
-        default:
-          service = null;
-      }
+      final serviceStr = map['service']?.toString().toLowerCase() ?? '';
+      final service = switch (serviceStr) {
+        'plumber' => ServiceCategory.plumber,
+        'carpenter' => ServiceCategory.carpenter,
+        'electrician' => ServiceCategory.electrician,
+        'painter' => ServiceCategory.painter,
+        'ac technician' || 'actechnician' => ServiceCategory.acTechnician,
+        'appliance repair' ||
+        'appliancerepair' => ServiceCategory.applianceRepair,
+        'cleaner' => ServiceCategory.cleaner,
+        'pest control' || 'pestcontrol' => ServiceCategory.pestControl,
+        'mechanic' => ServiceCategory.mechanic,
+        'gardener' => ServiceCategory.gardener,
+        _ => null,
+      };
 
       return SearchFilters(
         serviceCategory: service,

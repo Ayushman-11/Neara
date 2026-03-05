@@ -68,7 +68,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   decoration: BoxDecoration(
                     color: AppColors.saffronAmber,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: AppColors.saffronGlow,
                         blurRadius: 24,

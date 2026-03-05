@@ -53,42 +53,49 @@ final appRouter = GoRouter(
     GoRoute(path: '/voice', builder: (_, __) => const VoiceIntentScreen()),
     GoRoute(
         path: '/confirm-intent',
-        builder: (_, __) => const IntentConfirmationScreen()),
+        builder: (_, state) {
+          final data = state.extra as Map<String, dynamic>?;
+          return IntentConfirmationScreen(
+            transcript: data?['transcript'] as String? ??
+                'My kitchen sink is leaking badly.',
+            category: data?['category'] as String? ?? 'Plumber',
+            urgency: data?['urgency'] as String? ?? 'Normal Urgency',
+          );
+        }),
 
     // ── Workers ─────────────────────────────────────────────
-    GoRoute(path: '/workers', builder: (_, __) => const WorkerListScreen()),
+    GoRoute(
+        path: '/workers',
+        builder: (_, state) => WorkerListScreen(
+              categoryFilter: state.extra as String?,
+            )),
     GoRoute(
         path: '/worker/:id',
         builder: (_, state) =>
             WorkerProfileScreen(workerId: state.pathParameters['id']!)),
 
     // ── Service ─────────────────────────────────────────────
-    GoRoute(
-        path: '/request', builder: (_, __) => const ServiceRequestScreen()),
+    GoRoute(path: '/request', builder: (_, __) => const ServiceRequestScreen()),
     GoRoute(
         path: '/request-status',
         builder: (_, __) => const RequestStatusScreen()),
     GoRoute(path: '/proposal', builder: (_, __) => const ProposalScreen()),
     GoRoute(
-        path: '/negotiation',
-        builder: (_, __) => const NegotiationScreen()),
+        path: '/negotiation', builder: (_, __) => const NegotiationScreen()),
 
     // ── Payment ─────────────────────────────────────────────
     GoRoute(path: '/payment', builder: (_, __) => const PaymentScreen()),
     GoRoute(
-        path: '/final-payment',
-        builder: (_, __) => const FinalPaymentScreen()),
+        path: '/final-payment', builder: (_, __) => const FinalPaymentScreen()),
 
     // ── Tracking ────────────────────────────────────────────
     GoRoute(
-        path: '/booking-live',
-        builder: (_, __) => const BookingLiveScreen()),
+        path: '/booking-live', builder: (_, __) => const BookingLiveScreen()),
     GoRoute(
         path: '/in-progress',
         builder: (_, __) => const ServiceInProgressScreen()),
     GoRoute(
-        path: '/completed',
-        builder: (_, __) => const ServiceCompletedScreen()),
+        path: '/completed', builder: (_, __) => const ServiceCompletedScreen()),
 
     // ── Review ───────────────────────────────────────────────
     GoRoute(path: '/review', builder: (_, __) => const ReviewScreen()),

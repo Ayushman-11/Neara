@@ -53,7 +53,7 @@ class WorkerProfileScreen extends StatelessWidget {
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -113,10 +113,10 @@ class WorkerProfileScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (worker.isOnline)
-                          StatusChip(
+                          const StatusChip(
                               label: '● Online', type: StatusChipType.online)
                         else
-                          StatusChip(
+                          const StatusChip(
                               label: 'Offline', type: StatusChipType.muted),
                         const SizedBox(width: 8),
                         StatusChip(

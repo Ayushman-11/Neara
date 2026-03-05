@@ -46,7 +46,7 @@ final workersProvider = Provider<List<Worker>>((ref) {
     Worker(
       id: '4',
       name: 'Anita Desai',
-      primaryCategory: ServiceCategory.maid,
+      primaryCategory: ServiceCategory.cleaner,
       skills: const ['House cleaning', 'Cooking'],
       rating: 4.9,
       jobCount: 300,
@@ -94,7 +94,7 @@ final workersProvider = Provider<List<Worker>>((ref) {
     Worker(
       id: '8',
       name: 'Sunita Rao',
-      primaryCategory: ServiceCategory.maid,
+      primaryCategory: ServiceCategory.cleaner,
       skills: const ['Deep cleaning', 'Laundry'],
       rating: 4.8,
       jobCount: 250,
