@@ -38,16 +38,32 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen> {
   Future<void> _loadAddresses() async {
     final list = await locator<AddressService>().getMyAddresses();
     if (mounted) {
-      CustomerAddress? defaultAddr;
+      CustomerAddress? newSelected;
       if (list.isNotEmpty) {
-        defaultAddr = list.firstWhere(
+        // If we have a newly added address not in our previous list, select it
+        if (_addresses.isNotEmpty && list.length > _addresses.length) {
+          try {
+            newSelected = list.firstWhere((a) => !_addresses.any((old) => old.id == a.id));
+          } catch (_) {}
+        }
+        
+        // Otherwise, try to maintain current selection
+        if (newSelected == null && _selectedAddress != null) {
+          try {
+            newSelected = list.firstWhere((a) => a.id == _selectedAddress!.id);
+          } catch (_) {}
+        }
+        
+        // Finally, fallback to default or first
+        newSelected ??= list.firstWhere(
           (a) => a.isDefault,
           orElse: () => list.first,
         );
       }
+      
       setState(() {
         _addresses = list;
-        _selectedAddress = defaultAddr;
+        _selectedAddress = newSelected;
         _loadingAddresses = false;
       });
     }
@@ -74,6 +90,12 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen> {
       );
       return;
     }
+    if (_selectedAddress == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select or add an address')),
+      );
+      return;
+    }
 
     setState(() => _isSending = true);
     try {
@@ -82,8 +104,10 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen> {
         categoryId: worker.categoryId, // now populated from DB
         problemDescription: problem,
         urgency: _urgency,
-        addressId: _selectedAddress?.id,
-        addressSnapshot: _selectedAddress?.displayText,
+        addressId: _selectedAddress!.id,
+        addressSnapshot: _selectedAddress!.displayText,
+        locationLat: _selectedAddress!.locationLat,
+        locationLng: _selectedAddress!.locationLng,
       );
       if (mounted) {
         context.go('/request-status', extra: {
@@ -107,9 +131,12 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen> {
     }
   }
 
-  void _showAddressPicker() {
+  Future<void> _showAddressPicker() async {
     if (_addresses.isEmpty) {
-      context.push('/addresses');
+      await context.push('/addresses');
+      if (mounted) {
+        _loadAddresses();
+      }
       return;
     }
     showModalBottomSheet(
@@ -153,9 +180,12 @@ class _ServiceRequestScreenState extends State<ServiceRequestScreen> {
                 )),
             const Divider(height: 20),
             TextButton.icon(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(ctx);
-                context.push('/addresses');
+                await context.push('/addresses');
+                if (mounted) {
+                  _loadAddresses();
+                }
               },
               icon: const Icon(Icons.add_location_alt_rounded,
                   color: AppColors.saffronAmber),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
 import '../../widgets/section_header.dart';
@@ -22,12 +24,57 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Worker>> _workersFuture;
   String _userName = 'there';
   String _userInitial = '?';
+  String _currentLocation = 'Locating...';
 
   @override
   void initState() {
     super.initState();
     _workersFuture = locator<SupabaseService>().getNearbyWorkers();
     _loadUserName();
+    _determinePosition();
+  }
+
+  Future<void> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (mounted) setState(() => _currentLocation = 'Location disabled');
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        if (mounted) setState(() => _currentLocation = 'Permission denied');
+        return;
+      }
+    }
+    
+    if (permission == LocationPermission.deniedForever) {
+      if (mounted) setState(() => _currentLocation = 'Permission denied forever');
+      return;
+    } 
+
+    try {
+      Position? position = await Geolocator.getLastKnownPosition();
+      position ??= await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 5),
+      );
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude).timeout(const Duration(seconds: 5));
+      if (placemarks.isNotEmpty && mounted) {
+        final place = placemarks.first;
+        final subLocality = place.subLocality != null && place.subLocality!.isNotEmpty ? place.subLocality : place.locality;
+        setState(() {
+          _currentLocation = '${subLocality ?? 'Unknown'}, ${place.administrativeArea ?? 'Area'}';
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _currentLocation = 'Location unavailable');
+    }
   }
 
   Future<void> _loadUserName() async {
@@ -84,9 +131,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             const Icon(Icons.location_on_rounded,
                                 color: AppColors.saffronAmber, size: 14),
                             const SizedBox(width: 4),
-                            Text('Koregaon Park, Pune',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                    color: AppColors.saffronAmber)),
+                            Expanded(
+                              child: Text(_currentLocation,
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                      color: AppColors.saffronAmber),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis),
+                            ),
                           ],
                         ),
                       ],
@@ -96,16 +147,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   IconButton(
                     icon: const Icon(Icons.notifications_outlined,
                         color: AppColors.brightIvory),
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No new notifications')),
+                      );
+                    },
                   ),
                   const SizedBox(width: 4),
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundColor: AppColors.saffronAmber,
-                    child: Text(_userInitial,
-                        style: AppTextStyles.label.copyWith(
-                            color: AppColors.midnightNavy,
-                            fontWeight: FontWeight.w700)),
+                  GestureDetector(
+                    onTap: () => context.push('/profile'),
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: AppColors.saffronAmber,
+                      child: Text(_userInitial,
+                          style: AppTextStyles.label.copyWith(
+                              color: AppColors.midnightNavy,
+                              fontWeight: FontWeight.w700)),
+                    ),
                   ),
                 ],
               ),
@@ -158,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ).animate().fadeIn(delay: 400.ms),
                     const SizedBox(height: 12),
                     SizedBox(
-                      height: 160,
+                      height: 130,
                       child: FutureBuilder<List<Worker>>(
                         future: _workersFuture,
                         builder: (context, snapshot) {

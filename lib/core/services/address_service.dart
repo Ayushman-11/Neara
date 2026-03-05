@@ -7,6 +7,8 @@ class CustomerAddress {
   final String addressLine;
   final String? city;
   final String? pincode;
+  final double? locationLat;
+  final double? locationLng;
   final bool isDefault;
 
   const CustomerAddress({
@@ -15,6 +17,8 @@ class CustomerAddress {
     required this.addressLine,
     this.city,
     this.pincode,
+    this.locationLat,
+    this.locationLng,
     this.isDefault = false,
   });
 
@@ -24,13 +28,30 @@ class CustomerAddress {
         addressLine: m['address_line'] as String,
         city: m['city'] as String?,
         pincode: m['pincode'] as String?,
+        locationLat: _parseDouble(m['location_lat']),
+        locationLng: _parseDouble(m['location_lng']),
         isDefault: m['is_default'] as bool? ?? false,
       );
+
+  static double? _parseDouble(dynamic val) {
+    if (val == null) return null;
+    if (val is num) return val.toDouble();
+    if (val is String) return double.tryParse(val);
+    return null;
+  }
 
   String get displayText =>
       [addressLine, city, pincode].where((e) => e != null && e.isNotEmpty).join(', ');
 
   String get shortDisplay => '$label • $addressLine';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CustomerAddress && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 class AddressService {
@@ -58,6 +79,8 @@ class AddressService {
     required String addressLine,
     String? city,
     String? pincode,
+    double? locationLat,
+    double? locationLng,
     bool isDefault = false,
   }) async {
     final uid = _uid;
@@ -77,6 +100,8 @@ class AddressService {
       'address_line': addressLine,
       if (city != null && city.isNotEmpty) 'city': city,
       if (pincode != null && pincode.isNotEmpty) 'pincode': pincode,
+      if (locationLat != null) 'location_lat': locationLat,
+      if (locationLng != null) 'location_lng': locationLng,
       'is_default': isDefault,
     }).select().single();
 

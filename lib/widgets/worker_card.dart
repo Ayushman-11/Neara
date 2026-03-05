@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_theme.dart';
 import '../core/models/worker.dart';
-import 'status_chip.dart';
 
 class WorkerCard extends StatelessWidget {
   final Worker worker;
@@ -23,23 +22,33 @@ class WorkerCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.warmCharcoal,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppColors.mutedSteel, width: 1),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Avatar
+            // ── Left: Avatar ─────────────────────────────
             Stack(
               children: [
-                CircleAvatar(
-                  radius: 26,
-                  backgroundColor: AppColors.elevatedGraphite,
+                Container(
+                  width: 54,
+                  height: 54,
+                  decoration: BoxDecoration(
+                    color: AppColors.elevatedGraphite,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  alignment: Alignment.center,
                   child: Text(
                     worker.avatarInitials,
-                    style: AppTextStyles.titleSmall.copyWith(color: AppColors.saffronAmber),
+                    style: AppTextStyles.titleSmall.copyWith(
+                      color: AppColors.saffronAmber,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 if (worker.isOnline)
@@ -47,8 +56,8 @@ class WorkerCard extends StatelessWidget {
                     bottom: 2,
                     right: 2,
                     child: Container(
-                      width: 10,
-                      height: 10,
+                      width: 11,
+                      height: 11,
                       decoration: BoxDecoration(
                         color: AppColors.liveTeal,
                         shape: BoxShape.circle,
@@ -58,48 +67,79 @@ class WorkerCard extends StatelessWidget {
                   ),
               ],
             ),
+
             const SizedBox(width: 12),
-            // Details
+
+            // ── Right: Info ───────────────────────────────
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(
-                        worker.name,
-                        style: AppTextStyles.titleSmall,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(width: 6),
-                      if (isTopRated)
-                        StatusChip(label: 'Top Rated', type: StatusChipType.accent),
-                      if (isClosest && !isTopRated)
-                        StatusChip(label: 'Closest', type: StatusChipType.online),
-                    ],
+                  // Name row
+                  Text(
+                    worker.name,
+                    style: AppTextStyles.label.copyWith(
+                      color: AppColors.brightIvory,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                   const SizedBox(height: 2),
-                  Text(worker.category, style: AppTextStyles.bodySmall),
+
+                  // Category
+                  Text(
+                    worker.category,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.mutedFog,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
                   const SizedBox(height: 8),
+
+                  // Badges
                   Wrap(
-                    spacing: 8,
+                    spacing: 6,
                     runSpacing: 4,
                     children: [
-                      _StatPill(
-                        icon: Icons.star_rounded,
-                        iconColor: AppColors.saffronAmber,
-                        label: worker.rating.toStringAsFixed(1),
+                      if (worker.isOnline)
+                        _Badge(label: 'Online', color: AppColors.liveTeal),
+                      if (isTopRated)
+                        _Badge(label: '★ Top Rated', color: AppColors.saffronAmber),
+                      if (isClosest && !isTopRated)
+                        _Badge(label: 'Nearest', color: AppColors.softMoonlight),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Stats row
+                  Row(
+                    children: [
+                      Flexible(
+                        child: _StatPill(
+                          icon: Icons.star_rounded,
+                          iconColor: AppColors.saffronAmber,
+                          label: worker.rating.toStringAsFixed(1),
+                        ),
                       ),
-                      _StatPill(
-                        icon: Icons.location_on_rounded,
-                        iconColor: AppColors.softMoonlight,
-                        label: '${worker.distanceKm} km',
+                      const SizedBox(width: 12),
+                      Flexible(
+                        child: _StatPill(
+                          icon: Icons.near_me_rounded,
+                          iconColor: AppColors.mutedFog,
+                          label: '${worker.distanceKm} km',
+                        ),
                       ),
-                      _StatPill(
-                        icon: Icons.check_circle_outline_rounded,
-                        iconColor: AppColors.safeGreen,
-                        label: '${worker.jobsCompleted} jobs',
+                      const SizedBox(width: 12),
+                      Flexible(
+                        child: _StatPill(
+                          icon: Icons.check_circle_rounded,
+                          iconColor: AppColors.safeGreen,
+                          label: '${worker.jobsCompleted} jobs',
+                        ),
                       ),
                     ],
                   ),
@@ -113,21 +153,57 @@ class WorkerCard extends StatelessWidget {
   }
 }
 
+class _Badge extends StatelessWidget {
+  final String label;
+  final Color color;
+  const _Badge({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withAlpha(22),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withAlpha(70)),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.micro.copyWith(
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
 class _StatPill extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String label;
 
-  const _StatPill({required this.icon, required this.iconColor, required this.label});
+  const _StatPill({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 12, color: iconColor),
+        Icon(icon, size: 13, color: iconColor),
         const SizedBox(width: 3),
-        Text(label, style: AppTextStyles.bodySmall),
+        Flexible(
+          child: Text(
+            label,
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.softMoonlight),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
       ],
     );
   }
