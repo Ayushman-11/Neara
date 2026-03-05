@@ -92,7 +92,7 @@ class _BookingLiveScreenState extends State<BookingLiveScreen> {
                         ),
                         child: const Icon(Icons.arrow_back_rounded, size: 18),
                       ),
-                      onPressed: () => context.go('/home'),
+                      onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
                     ),
                   ),
                 ),
@@ -263,7 +263,7 @@ class _BookingLiveScreenState extends State<BookingLiveScreen> {
       ),
       floatingActionButton: FloatingActionButton.small(
         backgroundColor: AppColors.emergencyCrimson,
-        onPressed: () => context.go('/sos'),
+        onPressed: () => context.push('/sos'),
         child: const Icon(Icons.sos_rounded, color: Colors.white),
       ),
     );

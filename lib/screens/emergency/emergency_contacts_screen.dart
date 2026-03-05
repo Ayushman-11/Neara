@@ -22,7 +22,7 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
         title: const Text('Emergency Contacts'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go('/profile'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
         actions: [
           TextButton.icon(

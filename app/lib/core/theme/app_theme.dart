@@ -1,88 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-ThemeData buildAppTheme() {
-  // Monochrome base theme (black & white focus)
-  const primaryBackground = Color(0xFFFFFFFF);
-  const secondaryBackground = Color(0xFFF5F5F5);
-  const emergencyAccent = Color(0xFFEF4444);
+// ── Fresh Professional Palette ──────────────────────────────
+class AppPalette {
+  AppPalette._();
+  static const teal600 = Color(0xFF0D9488);
+  static const teal700 = Color(0xFF0F766E);
+  static const teal500 = Color(0xFF14B8A6);
+  static const teal50 = Color(0xFFF0FDFA);
+  static const orange500 = Color(0xFFF97316);
+  static const gray900 = Color(0xFF111827);
+  static const gray700 = Color(0xFF374151);
+  static const gray500 = Color(0xFF6B7280);
+  static const gray400 = Color(0xFF9CA3AF);
+  static const gray200 = Color(0xFFE5E7EB);
+  static const gray100 = Color(0xFFF3F4F6);
+  static const gray50 = Color(0xFFF9FAFB);
+  static const white = Color(0xFFFFFFFF);
+  static const error = Color(0xFFEF4444);
+  static const success = Color(0xFF10B981);
+  static const amber = Color(0xFFF59E0B);
+}
 
-  // Using rounded font family (Quicksand)
-  final baseTextTheme = GoogleFonts.quicksandTextTheme(
-    const TextTheme(bodyMedium: TextStyle(color: Colors.black)),
+ThemeData buildAppTheme() {
+  final baseTextTheme = GoogleFonts.interTextTheme(
+    const TextTheme(bodyMedium: TextStyle(color: AppPalette.gray900)),
   );
 
-  final colorScheme = const ColorScheme.light(
-    background: primaryBackground,
-    surface: secondaryBackground,
-    primary: Colors.black,
-    secondary: Colors.black,
-    error: emergencyAccent,
+  const colorScheme = ColorScheme.light(
+    surface: AppPalette.white,
+    primary: AppPalette.teal600,
+    secondary: AppPalette.teal500,
+    error: AppPalette.error,
+    onPrimary: AppPalette.white,
+    onSurface: AppPalette.gray900,
   );
 
   return ThemeData(
     useMaterial3: true,
     colorScheme: colorScheme,
-    scaffoldBackgroundColor: primaryBackground,
+    scaffoldBackgroundColor: AppPalette.gray50,
     textTheme: baseTextTheme.apply(
-      bodyColor: Colors.black,
-      displayColor: Colors.black,
+      bodyColor: AppPalette.gray900,
+      displayColor: AppPalette.gray900,
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
-      foregroundColor: Colors.black,
+      foregroundColor: AppPalette.gray900,
       elevation: 0,
       centerTitle: true,
     ),
     bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: primaryBackground,
+      backgroundColor: AppPalette.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       showDragHandle: true,
     ),
-    drawerTheme: const DrawerThemeData(backgroundColor: primaryBackground),
+    drawerTheme: const DrawerThemeData(backgroundColor: AppPalette.white),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black,
+        backgroundColor: AppPalette.teal600,
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 0,
       ),
     ),
   );
 }
 
-// Gradient backgrounds for consistent use across the app
+// ── Gradients ───────────────────────────────────────────────
 class AppGradients {
-  // General app background: soft grayscale
   static const primaryGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFFF9FAFB), Color(0xFFF3F4F6), Color(0xFFE5E7EB)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppPalette.gray50, AppPalette.gray100],
   );
 
-  // Default accent surfaces (buttons, chips etc.) in black tones
   static const accentGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF111827), Color(0xFF000000)],
+    colors: [AppPalette.teal600, AppPalette.teal700],
   );
 
-  // Card background
   static const cardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFFFFFFFF), Color(0xFFF5F5F5)],
+    colors: [AppPalette.white, AppPalette.gray50],
   );
 
-  // Voice agent screen background: white + blue mix
   static const agentGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [
-      Color(0xFFFFFFFF),
-      Color(0xFFE0F2FE), // light blue
-      Color(0xFFBFDBFE), // slightly deeper blue
-    ],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppPalette.white, AppPalette.teal50, Color(0xFFCCFBF1)],
   );
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/mock/mock_data.dart';
 import '../../widgets/status_chip.dart';
 
 class BookingSummaryScreen extends StatelessWidget {

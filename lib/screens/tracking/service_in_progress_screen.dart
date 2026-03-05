@@ -16,7 +16,7 @@ class ServiceInProgressScreen extends StatelessWidget {
         title: const Text('Service in Progress'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go('/booking-live'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/booking-live'),
         ),
       ),
       body: SafeArea(

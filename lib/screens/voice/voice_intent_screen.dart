@@ -65,7 +65,7 @@ class _VoiceIntentScreenState extends State<VoiceIntentScreen>
         title: const Text('Describe your problem'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go('/home'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
         ),
       ),
       body: SafeArea(
@@ -223,7 +223,7 @@ class _VoiceIntentScreenState extends State<VoiceIntentScreen>
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => context.go('/home'),
+                      onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
                       child: const Text('Cancel'),
                     ),
                   ),
@@ -231,7 +231,7 @@ class _VoiceIntentScreenState extends State<VoiceIntentScreen>
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _isDone || _transcript.isNotEmpty
-                          ? () => context.go('/confirm-intent')
+                          ? () => context.push('/confirm-intent')
                           : null,
                       child: const Text('Done ✓'),
                     ),

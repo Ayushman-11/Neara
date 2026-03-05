@@ -161,7 +161,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               ).animate().fadeIn(delay: 400.ms),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () => context.go('/booking-summary'),
+                onPressed: () => context.push('/booking-summary'),
                 child: const Text('Submit Review'),
               ).animate().fadeIn(delay: 500.ms),
               const SizedBox(height: 12),

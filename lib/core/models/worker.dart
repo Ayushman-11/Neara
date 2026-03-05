@@ -2,6 +2,7 @@ class Worker {
   final String id;
   final String name;
   final String category;
+  final String? categoryId; // needed for service_requests.category_id
   final double rating;
   final double distanceKm;
   final int jobsCompleted;
@@ -16,6 +17,7 @@ class Worker {
     required this.id,
     required this.name,
     required this.category,
+    this.categoryId,
     required this.rating,
     required this.distanceKm,
     required this.jobsCompleted,

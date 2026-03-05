@@ -59,11 +59,11 @@ class _NegotiationScreenState extends State<NegotiationScreen> {
         title: const Text('Negotiate'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go('/proposal'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/proposal'),
         ),
         actions: [
           TextButton(
-            onPressed: () => context.go('/payment'),
+            onPressed: () => context.push('/payment'),
             child: Text('Accept',
                 style: AppTextStyles.label
                     .copyWith(color: AppColors.saffronAmber)),
