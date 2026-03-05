@@ -63,7 +63,7 @@ class _SosScreenState extends State<SosScreen> with TickerProviderStateMixin {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.close_rounded),
-                    onPressed: () => context.go('/home'),
+                    onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
                   ),
                 ],
               ),

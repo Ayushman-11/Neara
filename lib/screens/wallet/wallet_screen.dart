@@ -23,7 +23,7 @@ class WalletScreen extends StatelessWidget {
         title: const Text('Wallet'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go('/profile'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
       ),
       body: SafeArea(

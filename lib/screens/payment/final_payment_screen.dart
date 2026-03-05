@@ -15,7 +15,7 @@ class FinalPaymentScreen extends StatelessWidget {
         title: const Text('Final Payment'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go('/completed'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/completed'),
         ),
       ),
       body: SafeArea(
@@ -73,7 +73,7 @@ class FinalPaymentScreen extends StatelessWidget {
               ).animate().fadeIn(delay: 200.ms),
               const Spacer(),
               ElevatedButton(
-                onPressed: () => context.go('/review'),
+                onPressed: () => context.push('/review'),
                 child: const Text('Pay ₹200 & Complete'),
               ).animate().fadeIn(delay: 300.ms),
               const SizedBox(height: 16),

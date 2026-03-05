@@ -120,109 +120,110 @@ class _VoiceAgentScreenState extends ConsumerState<VoiceAgentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: const BoxDecoration(gradient: AppGradients.agentGradient),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _HomeAppBar(onMenuTap: widget.onOpenDrawer),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.12,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _HomeAppBar(onMenuTap: widget.onOpenDrawer),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 36),
+                      // Badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
                         ),
-                        // App branding and tagline
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: AppGradients.accentGradient,
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF6366F1).withOpacity(0.3),
-                                blurRadius: 40,
-                                spreadRadius: 8,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0FDFA),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: const Color(0xFF0D9488).withOpacity(0.25),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: const [
+                            Icon(
+                              Icons.bolt_rounded,
+                              size: 14,
+                              color: Color(0xFF0D9488),
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              'AI-powered  •  Emergency Ready',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF0F766E),
                               ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.bolt_rounded,
-                            size: 64,
-                            color: Colors.white,
-                          ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 32),
-                        const Text(
-                          'Neara',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF1E293B),
-                            letterSpacing: -1,
-                          ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Headline
+                      const Text(
+                        'What do you\nneed help with?',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF111827),
+                          height: 1.15,
+                          letterSpacing: -0.5,
                         ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Your emergency-ready assistant',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Color(0xFF64748B),
-                            fontWeight: FontWeight.w600,
-                          ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Describe your situation in words or use your voice.',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF6B7280),
+                          fontWeight: FontWeight.w400,
+                          height: 1.5,
                         ),
-                        const SizedBox(height: 28),
-                        // Example questions
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Example questions you can ask:',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF64748B),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: [
-                                  for (final query in _exampleQueries)
-                                    _ExampleQuestionChip(
-                                      label: query,
-                                      onTap: () {
-                                        _textController.text = query;
-                                      },
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ),
+                      ),
+                      const SizedBox(height: 36),
+                      // Example queries label
+                      const Text(
+                        'Try asking',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF374151),
                         ),
-                        const SizedBox(height: 32),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final query in _exampleQueries)
+                            _ExampleQuestionChip(
+                              label: query,
+                              onTap: () {
+                                _textController.text = query;
+                              },
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                    ],
                   ),
                 ),
               ),
-              _BottomInputBar(
-                controller: _textController,
-                onMicTap: _openVoiceListeningPanel,
-                onSubmit: _submitTextInput,
-              ),
-            ],
-          ),
+            ),
+            _BottomInputBar(
+              controller: _textController,
+              onMicTap: _openVoiceListeningPanel,
+              onSubmit: _submitTextInput,
+            ),
+          ],
         ),
       ),
     );
@@ -240,25 +241,18 @@ class _ExampleQuestionChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
         child: Text(
           label,
           style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF0F172A),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF374151),
           ),
         ),
       ),
@@ -273,84 +267,89 @@ class _HomeAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Menu button (opens drawer)
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black,
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.menu_rounded, size: 22),
-                color: Colors.white,
-                onPressed: () {
-                  if (onMenuTap != null) {
-                    onMenuTap!();
-                  } else {
-                    final scaffoldState = Scaffold.maybeOf(context);
-                    scaffoldState?.openDrawer();
-                  }
-                },
-              ),
-            ),
-            // App name in center
-            const Text(
-              'Neara',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.black,
-                letterSpacing: -0.5,
-              ),
-            ),
-            // Profile button
-            Container(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Color(0xFFF3F4F6))),
+      ),
+      child: Row(
+        children: [
+          // Menu button
+          GestureDetector(
+            onTap: () {
+              if (onMenuTap != null) {
+                onMenuTap!();
+              } else {
+                Scaffold.maybeOf(context)?.openDrawer();
+              }
+            },
+            child: Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: AppGradients.accentGradient,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.25),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
+                color: const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
               ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.person_rounded,
-                  size: 20,
-                  color: Colors.white,
-                ),
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Profile - Coming soon!')),
-                  );
-                },
+              child: const Icon(
+                Icons.menu_rounded,
+                size: 20,
+                color: Color(0xFF374151),
               ),
             ),
-          ],
-        ),
+          ),
+          const Spacer(),
+          // Logo + name
+          Row(
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0D9488),
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: const Icon(
+                  Icons.bolt_rounded,
+                  size: 16,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Neara',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF111827),
+                  letterSpacing: -0.3,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          // Profile button
+          GestureDetector(
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Profile - Coming soon!')),
+            ),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+              ),
+              child: const Icon(
+                Icons.person_outline_rounded,
+                size: 20,
+                color: Color(0xFF374151),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -410,83 +409,64 @@ class _BottomInputBarState extends State<_BottomInputBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
       padding: EdgeInsets.only(
         left: 20,
         right: 20,
-        top: 8,
-        bottom: MediaQuery.of(context).padding.bottom + 16,
+        top: 12,
+        bottom: MediaQuery.of(context).padding.bottom + 20,
       ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.12),
-              blurRadius: 20,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+              ),
               child: TextField(
                 controller: widget.controller,
-                style: const TextStyle(
-                  color: Color(0xFF1E293B),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: const TextStyle(color: Color(0xFF111827), fontSize: 15),
                 decoration: const InputDecoration(
                   hintText: 'Describe what you need...',
-                  hintStyle: TextStyle(
-                    color: Color(0xFF94A3B8),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  hintStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 15),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 14,
-                  ),
+                  contentPadding: EdgeInsets.symmetric(vertical: 14),
                 ),
                 onSubmitted: (_) => widget.onSubmit(),
               ),
             ),
-            GestureDetector(
-              onTap: () {
-                if (_hasText) {
-                  widget.onSubmit();
-                } else {
-                  widget.onMicTap();
-                }
-              },
-              child: Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: AppGradients.accentGradient,
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF6366F1).withOpacity(0.4),
-                      blurRadius: 12,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  _hasText ? Icons.send_rounded : Icons.mic_rounded,
-                  color: Colors.white,
-                  size: 22,
-                ),
+          ),
+          const SizedBox(width: 10),
+          GestureDetector(
+            onTap: () {
+              if (_hasText) {
+                widget.onSubmit();
+              } else {
+                widget.onMicTap();
+              }
+            },
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: const Color(0xFF0D9488),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                _hasText ? Icons.send_rounded : Icons.mic_rounded,
+                color: Colors.white,
+                size: 20,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -649,16 +629,16 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1F2937),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
           children: [
-            Icon(Icons.check_circle_outline, color: Color(0xFF4F46E5)),
+            Icon(Icons.check_circle_outline, color: Color(0xFF0D9488)),
             SizedBox(width: 12),
             Flexible(
               child: Text(
                 'Confirm Details',
-                style: TextStyle(color: Colors.white, fontSize: 18),
+                style: TextStyle(color: Color(0xFF111827), fontSize: 18),
               ),
             ),
           ],
@@ -671,7 +651,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
               const Text(
                 'Your request:',
                 style: TextStyle(
-                  color: Color(0xFF9CA3AF),
+                  color: Color(0xFF6B7280),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -680,7 +660,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
               Text(
                 '"$_currentTranscript"',
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Color(0xFF111827),
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
                 ),
@@ -689,10 +669,10 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A),
+                  color: const Color(0xFFF0FDFA),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color(0xFF4F46E5).withOpacity(0.3),
+                    color: const Color(0xFF0D9488).withOpacity(0.2),
                   ),
                 ),
                 child: Column(
@@ -737,7 +717,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
             },
             child: const Text(
               'Cancel',
-              style: TextStyle(color: Color(0xFF9CA3AF)),
+              style: TextStyle(color: Color(0xFF6B7280)),
             ),
           ),
           ElevatedButton(
@@ -751,7 +731,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4F46E5),
+              backgroundColor: const Color(0xFF0D9488),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -769,12 +749,12 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
   Widget _buildConfirmationRow(String label, String value, IconData icon) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF4F46E5)),
+        Icon(icon, size: 16, color: const Color(0xFF0D9488)),
         const SizedBox(width: 8),
         Text(
           '$label: ',
           style: const TextStyle(
-            color: Color(0xFF9CA3AF),
+            color: Color(0xFF6B7280),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -782,7 +762,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(color: Colors.white, fontSize: 12),
+            style: const TextStyle(color: Color(0xFF111827), fontSize: 12),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -794,15 +774,15 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
-      decoration: const BoxDecoration(
+      height: MediaQuery.of(context).size.height * 0.65,
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Color(0x1A000000),
-            blurRadius: 40,
-            offset: Offset(0, -8),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
@@ -831,22 +811,24 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                       return Transform.scale(
                         scale: scale,
                         child: Container(
-                          width: 120,
-                          height: 120,
+                          width: 100,
+                          height: 100,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: AppGradients.accentGradient,
+                            color: const Color(0xFF0D9488),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF6366F1).withOpacity(0.4),
-                                blurRadius: 40,
-                                spreadRadius: 10,
+                                color: const Color(
+                                  0xFF0D9488,
+                                ).withOpacity(0.25),
+                                blurRadius: 24,
+                                spreadRadius: 4,
                               ),
                             ],
                           ),
                           child: const Icon(
                             Icons.mic_rounded,
-                            size: 56,
+                            size: 44,
                             color: Colors.white,
                           ),
                         ),
@@ -905,7 +887,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
-                                        color: Color(0xFF6366F1),
+                                        color: Color(0xFF0D9488),
                                       ),
                                     ),
                                   ],
@@ -933,7 +915,7 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                Color(0xFF6366F1),
+                                Color(0xFF0D9488),
                               ),
                             ),
                           ),
@@ -957,35 +939,22 @@ class _VoiceListeningPanelState extends ConsumerState<_VoiceListeningPanel>
           ),
           Padding(
             padding: const EdgeInsets.all(24),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: AppGradients.accentGradient,
-                borderRadius: BorderRadius.circular(26),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF6366F1).withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: ElevatedButton(
-                onPressed: _stopListening,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  minimumSize: const Size(double.infinity, 52),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(26),
-                  ),
+            child: ElevatedButton(
+              onPressed: _stopListening,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0D9488),
+                minimumSize: const Size(double.infinity, 52),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Text(
-                  'Done',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
+              ),
+              child: const Text(
+                'Done',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
               ),
             ),

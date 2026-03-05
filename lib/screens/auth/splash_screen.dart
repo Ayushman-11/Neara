@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,21 +16,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkLoginState();
+    _checkSession();
   }
 
-  Future<void> _checkLoginState() async {
-    final prefs = await SharedPreferences.getInstance();
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
+  Future<void> _checkSession() async {
     await Future.delayed(const Duration(milliseconds: 2600));
-
-    if (mounted) {
-      if (isLoggedIn) {
-        context.go('/home');
-      } else {
-        context.go('/login');
-      }
+    if (!mounted) return;
+    final isLoggedIn = Supabase.instance.client.auth.currentUser != null;
+    if (isLoggedIn) {
+      context.go('/home');
+    } else {
+      context.go('/login');
     }
   }
 

@@ -25,7 +25,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         title: const Text('Secure Payment'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go('/proposal'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/proposal'),
         ),
         actions: [
           Padding(

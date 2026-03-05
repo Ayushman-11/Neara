@@ -70,7 +70,7 @@ class _DrawerHeader extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF000000), Color(0xFF111827)],
+          colors: [Color(0xFF0D9488), Color(0xFF0F766E)],
         ),
       ),
       child: Row(
@@ -91,7 +91,7 @@ class _DrawerHeader extends StatelessWidget {
             ),
             child: const Icon(
               Icons.bolt_rounded,
-              color: Colors.black,
+              color: Color(0xFF0D9488),
               size: 24,
             ),
           ),
@@ -148,20 +148,20 @@ class _DrawerItem extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.black,
+            color: const Color(0xFFF3F4F6),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
-              Icon(icon, color: Colors.white, size: 22),
+              Icon(icon, color: const Color(0xFF374151), size: 22),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   label,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: Color(0xFF374151),
                     fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),

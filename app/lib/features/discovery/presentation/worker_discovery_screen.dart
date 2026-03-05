@@ -244,7 +244,7 @@ class _FloatingSearchBar extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Icon(
                 Icons.tune_rounded,
-                color: const Color(0xFF6366F1),
+                color: const Color(0xFF0D9488),
                 size: 24,
               ),
             ),
@@ -377,10 +377,10 @@ class _FloatingFilterPanelState extends ConsumerState<_FloatingFilterPanel> {
             const SizedBox(height: 8),
             SliderTheme(
               data: SliderThemeData(
-                activeTrackColor: const Color(0xFF6366F1),
-                inactiveTrackColor: const Color(0xFFE2E8F0),
-                thumbColor: const Color(0xFF6366F1),
-                overlayColor: const Color(0xFF6366F1).withOpacity(0.2),
+                activeTrackColor: const Color(0xFF0D9488),
+                inactiveTrackColor: const Color(0xFFE5E7EB),
+                thumbColor: const Color(0xFF0D9488),
+                overlayColor: const Color(0xFF0D9488).withOpacity(0.15),
               ),
               child: Slider(
                 value: _radiusKm,
@@ -415,19 +415,8 @@ class _FloatingFilterPanelState extends ConsumerState<_FloatingFilterPanel> {
               },
             ),
             const SizedBox(height: 20),
-            Container(
+            SizedBox(
               width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: AppGradients.accentGradient,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF6366F1).withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
               child: ElevatedButton(
                 onPressed: () {
                   // Apply filters
@@ -445,9 +434,10 @@ class _FloatingFilterPanelState extends ConsumerState<_FloatingFilterPanel> {
                   widget.onClose();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
+                  backgroundColor: const Color(0xFF0D9488),
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
+                  elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -456,7 +446,7 @@ class _FloatingFilterPanelState extends ConsumerState<_FloatingFilterPanel> {
                   'Apply Filters',
                   style: TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
                 ),
@@ -640,8 +630,8 @@ class _WorkerCardVertical extends StatelessWidget {
                   worker.primaryCategory.name,
                   style: const TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6366F1),
-                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0D9488),
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -739,8 +729,8 @@ class _FilterToggleRow extends StatelessWidget {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: const Color(0xFF6366F1),
-          activeTrackColor: const Color(0xFF6366F1).withOpacity(0.5),
+          activeColor: const Color(0xFF0D9488),
+          activeTrackColor: const Color(0xFF0D9488).withOpacity(0.4),
         ),
       ],
     );
@@ -810,7 +800,7 @@ class _GlassButton extends StatelessWidget {
         ),
         child: Icon(
           Icons.my_location_rounded,
-          color: const Color(0xFF6366F1),
+          color: const Color(0xFF0D9488),
           size: 24,
         ),
       ),
@@ -864,8 +854,8 @@ class _BottomWorkerList extends ConsumerWidget {
                     'View all',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF6366F1),
-                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0D9488),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -962,8 +952,8 @@ class _WorkerCardHorizontal extends StatelessWidget {
                   worker.primaryCategory.name.toUpperCase(),
                   style: const TextStyle(
                     fontSize: 10,
-                    color: Color(0xFF6366F1),
-                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0D9488),
+                    fontWeight: FontWeight.w600,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1083,7 +1073,7 @@ class _WorkerDetailSheet extends StatelessWidget {
                       worker.primaryCategory.name,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF6366F1),
+                        color: Color(0xFF0D9488),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -1180,42 +1170,30 @@ class _WorkerDetailSheet extends StatelessWidget {
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: AppGradients.accentGradient,
-                borderRadius: BorderRadius.circular(999),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF6366F1).withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Service request sent to ${worker.name}'),
                   ),
-                ],
-              ),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Service request sent to ${worker.name}'),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  minimumSize: const Size.fromHeight(48),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(999),
-                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0D9488),
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(48),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'Request service',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
+              ),
+              child: const Text(
+                'Request service',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
               ),
             ),

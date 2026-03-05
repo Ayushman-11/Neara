@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/mock/mock_data.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/worker_card.dart';
+import '../../core/services/supabase_service.dart';
+import '../../core/models/worker.dart';
+import '../../core/di/locator.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,6 +19,35 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _navIndex = 0;
+  late Future<List<Worker>> _workersFuture;
+  String _userName = 'there';
+  String _userInitial = '?';
+
+  @override
+  void initState() {
+    super.initState();
+    _workersFuture = locator<SupabaseService>().getNearbyWorkers();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    try {
+      final uid = Supabase.instance.client.auth.currentUser?.id;
+      if (uid == null) return;
+      final data = await Supabase.instance.client
+          .from('profiles')
+          .select('full_name')
+          .eq('id', uid)
+          .maybeSingle();
+      if (data != null && mounted) {
+        final name = data['full_name'] as String? ?? 'there';
+        setState(() {
+          _userName = name.split(' ').first;
+          _userInitial = name.isNotEmpty ? name[0].toUpperCase() : '?';
+        });
+      }
+    } catch (_) {}
+  }
 
   final List<Map<String, dynamic>> _categories = [
     {'icon': Icons.plumbing_rounded, 'label': 'Plumber'},
@@ -30,8 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final nearbyWorkers = MockData.workers.where((w) => w.isOnline).take(3).toList();
-
     return Scaffold(
       backgroundColor: AppColors.midnightNavy,
       body: SafeArea(
@@ -46,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Good morning, Ayush 👋',
+                        Text('Hello, $_userName 👋',
                             style: AppTextStyles.titleSmall),
                         const SizedBox(height: 2),
                         Row(
@@ -72,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   CircleAvatar(
                     radius: 18,
                     backgroundColor: AppColors.saffronAmber,
-                    child: Text('A',
+                    child: Text(_userInitial,
                         style: AppTextStyles.label.copyWith(
                             color: AppColors.midnightNavy,
                             fontWeight: FontWeight.w700)),
@@ -93,14 +123,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 20),
                     // Voice CTA
                     _VoiceCTA(
-                      onTap: () => context.go('/voice'),
+                      onTap: () => context.push('/voice'),
                     ).animate().fadeIn(delay: 200.ms),
                     const SizedBox(height: 24),
                     // Service categories
                     SectionHeader(
                       title: 'What do you need?',
                       actionLabel: 'See all',
-                      onAction: () => context.go('/workers'),
+                      onAction: () => context.push('/workers'),
                     ).animate().fadeIn(delay: 250.ms),
                     const SizedBox(height: 12),
                     GridView.count(
@@ -114,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         return _CategoryChip(
                           icon: cat['icon'] as IconData,
                           label: cat['label'] as String,
-                          onTap: () => context.go('/workers'),
+                          onTap: () => context.push('/workers'),
                         ).animate().fadeIn(delay: (300 + idx * 40).ms).scale(
                             begin: const Offset(0.8, 0.8));
                       }).toList(),
@@ -124,26 +154,50 @@ class _HomeScreenState extends State<HomeScreen> {
                     SectionHeader(
                       title: 'Workers near you',
                       actionLabel: 'See all',
-                      onAction: () => context.go('/workers'),
+                      onAction: () => context.push('/workers'),
                     ).animate().fadeIn(delay: 400.ms),
                     const SizedBox(height: 12),
                     SizedBox(
                       height: 160,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: nearbyWorkers.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
-                        itemBuilder: (context, index) {
-                          final w = nearbyWorkers[index];
-                          return SizedBox(
-                            width: 280,
-                            child: WorkerCard(
-                              worker: w,
-                              isTopRated: index == 0,
-                              isClosest: index == 1,
-                              onTap: () => context.go('/worker/${w.id}'),
-                            ),
-                          ).animate().fadeIn(delay: (430 + index * 60).ms).slideX(begin: 0.2);
+                      child: FutureBuilder<List<Worker>>(
+                        future: _workersFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(color: AppColors.saffronAmber),
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Error: ${snapshot.error}', style: AppTextStyles.bodySmall),
+                            );
+                          }
+                          
+                          final nearbyWorkers = snapshot.data ?? [];
+                          
+                          if (nearbyWorkers.isEmpty) {
+                            return Center(
+                              child: Text('No workers found nearby', style: AppTextStyles.bodySmall),
+                            );
+                          }
+
+                          return ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: nearbyWorkers.length,
+                            separatorBuilder: (_, __) => const SizedBox(width: 12),
+                            itemBuilder: (context, index) {
+                              final w = nearbyWorkers[index];
+                              return SizedBox(
+                                width: 280,
+                                child: WorkerCard(
+                                  worker: w,
+                                  isTopRated: index == 0,
+                                  isClosest: index == 1,
+                                  onTap: () => context.push('/worker/${w.id}'),
+                                ),
+                              ).animate().fadeIn(delay: (430 + index * 60).ms).slideX(begin: 0.2);
+                            },
+                          );
                         },
                       ),
                     ),

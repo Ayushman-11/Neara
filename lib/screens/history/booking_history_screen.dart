@@ -32,7 +32,7 @@ class BookingHistoryScreen extends StatelessWidget {
         title: const Text('Booking History'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go('/home'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
         ),
       ),
       body: ListView.separated(

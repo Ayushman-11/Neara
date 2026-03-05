@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Auth
 import '../../screens/auth/splash_screen.dart';
@@ -34,16 +35,42 @@ import '../../screens/emergency/sos_screen.dart';
 import '../../screens/emergency/emergency_contacts_screen.dart';
 // Profile / Utility
 import '../../screens/profile/profile_screen.dart';
+import '../../screens/profile/my_addresses_screen.dart';
 import '../../screens/wallet/wallet_screen.dart';
 import '../../screens/history/booking_history_screen.dart';
 
+bool _isAuthed() =>
+    Supabase.instance.client.auth.currentUser != null;
+
 final appRouter = GoRouter(
   initialLocation: '/splash',
+  redirect: (context, state) {
+    final authed = _isAuthed();
+    final path = state.uri.path;
+
+    // Protected routes: redirect to login if not authenticated
+    final protectedRoutes = [
+      '/home', '/workers', '/voice', '/request', '/payment',
+      '/profile', '/wallet', '/history', '/sos', '/emergency-contacts',
+    ];
+    final isProtected = protectedRoutes.any((r) => path.startsWith(r));
+
+    if (!authed && isProtected) return '/login';
+    // If logged in and trying to access auth screens, go home
+    if (authed && (path == '/login' || path == '/splash')) return '/home';
+    return null;
+  },
   routes: [
     // ── Auth ──────────────────────────────────────────────────
     GoRoute(path: '/splash', builder: (_, __) => const SplashScreen()),
     GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
-    GoRoute(path: '/otp', builder: (_, __) => const OtpScreen()),
+    GoRoute(
+      path: '/otp',
+      builder: (_, state) {
+        final phone = state.extra as String? ?? '';
+        return OtpScreen(phone: phone);
+      },
+    ),
     GoRoute(path: '/setup', builder: (_, __) => const ProfileSetupScreen()),
 
     // ── Home ────────────────────────────────────────────────
@@ -64,10 +91,16 @@ final appRouter = GoRouter(
 
     // ── Service ─────────────────────────────────────────────
     GoRoute(
-        path: '/request', builder: (_, __) => const ServiceRequestScreen()),
+        path: '/request',
+        builder: (_, state) {
+          final worker = state.extra;
+          return ServiceRequestScreen(worker: worker);
+        }),
     GoRoute(
         path: '/request-status',
-        builder: (_, __) => const RequestStatusScreen()),
+        builder: (_, state) => RequestStatusScreen(
+              requestData: state.extra as Map<String, dynamic>?,
+            )),
     GoRoute(path: '/proposal', builder: (_, __) => const ProposalScreen()),
     GoRoute(
         path: '/negotiation',
@@ -104,6 +137,7 @@ final appRouter = GoRouter(
 
     // ── Profile / Utility ────────────────────────────────────
     GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
+    GoRoute(path: '/addresses', builder: (_, __) => const MyAddressesScreen()),
     GoRoute(path: '/wallet', builder: (_, __) => const WalletScreen()),
     GoRoute(path: '/history', builder: (_, __) => const BookingHistoryScreen()),
   ],

@@ -15,7 +15,7 @@ class ServiceCompletedScreen extends StatelessWidget {
         title: const Text('Service Complete'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go('/in-progress'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/in-progress'),
         ),
       ),
       body: SafeArea(
@@ -68,7 +68,7 @@ class ServiceCompletedScreen extends StatelessWidget {
               ).animate().fadeIn(delay: 450.ms),
               const Spacer(),
               ElevatedButton(
-                onPressed: () => context.go('/final-payment'),
+                onPressed: () => context.push('/final-payment'),
                 child: const Text('Pay Balance ₹200'),
               ).animate().fadeIn(delay: 550.ms),
               const SizedBox(height: 16),

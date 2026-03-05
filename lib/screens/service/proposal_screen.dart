@@ -47,7 +47,7 @@ class _ProposalScreenState extends State<ProposalScreen> {
         title: const Text('Service Proposal'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.go('/request-status'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/request-status'),
         ),
       ),
       body: SafeArea(
@@ -179,12 +179,12 @@ class _ProposalScreenState extends State<ProposalScreen> {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: () => context.go('/payment'),
+                onPressed: () => context.push('/payment'),
                 child: const Text('Accept & Pay Advance'),
               ).animate().fadeIn(delay: 300.ms),
               const SizedBox(height: 12),
               OutlinedButton(
-                onPressed: () => context.go('/negotiation'),
+                onPressed: () => context.push('/negotiation'),
                 child: const Text('Negotiate'),
               ).animate().fadeIn(delay: 350.ms),
               const SizedBox(height: 12),
