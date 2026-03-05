@@ -15,6 +15,24 @@ class NavigationScreen extends ConsumerWidget {
     final activeJob = workerState.activeJob!;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16, top: 8),
+          child: CircleAvatar(
+            backgroundColor: AppColors.warmCharcoal,
+            child: IconButton(
+              icon: const Icon(
+                LucideIcons.chevronLeft,
+                color: AppColors.brightIvory,
+              ),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ),
+      ),
       body: Stack(
         children: [
           _buildMapPlaceholder(),
@@ -52,7 +70,7 @@ class NavigationScreen extends ConsumerWidget {
 
   Widget _buildTopOverlay(BuildContext context) {
     return Positioned(
-      top: MediaQuery.of(context).padding.top + 16,
+      top: MediaQuery.of(context).padding.top + 70, // Push down below AppBar
       left: 20,
       right: 20,
       child: Container(
@@ -183,7 +201,8 @@ class NavigationScreen extends ConsumerWidget {
                   .read(workerProvider.notifier)
                   .updateJobStatus(JobStatus.started);
               Navigator.pop(context);
-              Navigator.pushReplacement(
+              // Use push instead of pushReplacement
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const ServiceProgressScreen(),

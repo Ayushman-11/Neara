@@ -16,6 +16,14 @@ class EscrowWaitingScreen extends ConsumerWidget {
     final advanceAmount = activeJob.agreedAmount * activeJob.advancePercentage;
 
     return Scaffold(
+      backgroundColor: AppColors.midnightNavy,
+      appBar: AppBar(
+        title: const Text('Escrow Payment'),
+        leading: IconButton(
+          icon: const Icon(LucideIcons.chevronLeft),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),

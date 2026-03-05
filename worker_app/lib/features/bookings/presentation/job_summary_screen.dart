@@ -10,18 +10,24 @@ class JobSummaryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Note: We access state before resetting it in the notifier (or pass data here)
-    // Actually, in our completeJob() we set jobStatus to closed but keep the job data for summary.
     final workerState = ref.watch(workerProvider);
     final activeJob = workerState.activeJob!;
 
     return Scaffold(
+      backgroundColor: AppColors.midnightNavy,
+      appBar: AppBar(
+        title: const Text('Job Summary'),
+        leading: IconButton(
+          icon: const Icon(LucideIcons.chevronLeft),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              const SizedBox(height: 48),
+              const SizedBox(height: 24),
               _buildSuccessIcon(),
               const SizedBox(height: 24),
               Text('Job Completed!', style: AppTextStyles.titleLarge),

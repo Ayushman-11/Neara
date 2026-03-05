@@ -5,6 +5,9 @@ import 'package:worker_app/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:worker_app/features/dashboard/presentation/worker_state.dart';
 import 'package:worker_app/features/bookings/presentation/job_summary_screen.dart';
+import 'package:worker_app/features/bookings/presentation/full_screen_viewer.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import 'dart:async';
 
 class ServiceProgressScreen extends ConsumerStatefulWidget {
@@ -24,7 +27,9 @@ class _ServiceProgressScreenState extends ConsumerState<ServiceProgressScreen> {
   void initState() {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() => _seconds++);
+      if (mounted) {
+        setState(() => _seconds++);
+      }
     });
   }
 
@@ -49,7 +54,10 @@ class _ServiceProgressScreenState extends ConsumerState<ServiceProgressScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Job In Progress'),
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(LucideIcons.chevronLeft),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [
           IconButton(
             icon: const Icon(
@@ -196,7 +204,12 @@ class _ServiceProgressScreenState extends ConsumerState<ServiceProgressScreen> {
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              ...photos.map((p) => _buildPhotoThumbnail(p)),
+              ...photos.map(
+                (p) => _buildPhotoThumbnail(
+                  p,
+                  isBefore ? 'Before Photo' : 'After Photo',
+                ),
+              ),
               _buildAddPhotoButton(isBefore),
             ],
           ),
@@ -205,28 +218,59 @@ class _ServiceProgressScreenState extends ConsumerState<ServiceProgressScreen> {
     );
   }
 
-  Widget _buildPhotoThumbnail(String path) {
-    return Container(
-      width: 80,
-      margin: const EdgeInsets.only(right: 12),
-      decoration: BoxDecoration(
-        color: AppColors.elevatedGraphite,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.mutedSteel),
+  Widget _buildPhotoThumbnail(String path, String label) {
+    bool isFile = path.contains('/') || path.contains('\\');
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                FullScreenViewer(imagePath: path, title: label),
+          ),
+        );
+      },
+      child: Hero(
+        tag: path,
+        child: Container(
+          width: 80,
+          margin: const EdgeInsets.only(right: 12),
+          decoration: BoxDecoration(
+            color: AppColors.elevatedGraphite,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.mutedSteel),
+            image: isFile
+                ? DecorationImage(
+                    image: FileImage(File(path)),
+                    fit: BoxFit.cover,
+                  )
+                : null,
+          ),
+          child: isFile
+              ? null
+              : const Icon(
+                  LucideIcons.image,
+                  color: AppColors.mutedFog,
+                  size: 20,
+                ),
+        ),
       ),
-      child: const Icon(LucideIcons.image, color: AppColors.mutedFog, size: 20),
     );
   }
 
   Widget _buildAddPhotoButton(bool isBefore) {
     return GestureDetector(
-      onTap: () {
-        ref
-            .read(workerProvider.notifier)
-            .addJobPhoto(
-              'mock_path_${DateTime.now().millisecondsSinceEpoch}',
-              isBefore: isBefore,
-            );
+      onTap: () async {
+        final picker = ImagePicker();
+        final XFile? image = await picker.pickImage(
+          source: ImageSource.camera,
+          imageQuality: 70,
+        );
+        if (image != null) {
+          ref
+              .read(workerProvider.notifier)
+              .addJobPhoto(image.path, isBefore: isBefore);
+        }
       },
       child: Container(
         width: 80,
@@ -277,7 +321,8 @@ class _ServiceProgressScreenState extends ConsumerState<ServiceProgressScreen> {
             onPressed: () {
               ref.read(workerProvider.notifier).completeJob();
               Navigator.pop(context);
-              Navigator.pushReplacement(
+              // Use push instead of pushReplacement
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const JobSummaryScreen(),

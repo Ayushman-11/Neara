@@ -28,19 +28,6 @@ class WorkerDashboardScreen extends ConsumerStatefulWidget {
 class _WorkerDashboardScreenState extends ConsumerState<WorkerDashboardScreen> {
   int _selectedIndex = 0;
 
-  late final List<Widget> _screens;
-
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      _buildHomeScreen(),
-      const JobsScreen(),
-      const EarningsScreen(),
-      const ProfileScreen(),
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
     final workerState = ref.watch(workerProvider);
@@ -86,11 +73,19 @@ class _WorkerDashboardScreenState extends ConsumerState<WorkerDashboardScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: Opacity(
-        opacity: isOnline ? 1.0 : 0.5,
+      body: SafeArea(
         child: AbsorbPointer(
           absorbing: !isOnline,
-          child: _screens[_selectedIndex],
+          child: IndexedStack(
+            index: _selectedIndex,
+            children: [
+              // No const here to ensure they build correctly with current context/state
+              const HomeTab(),
+              const JobsScreen(),
+              const EarningsScreen(),
+              const ProfileScreen(),
+            ],
+          ),
         ),
       ),
       floatingActionButton: !isOnline && _selectedIndex == 0
@@ -128,8 +123,90 @@ class _WorkerDashboardScreenState extends ConsumerState<WorkerDashboardScreen> {
       ),
     );
   }
+}
 
-  Widget _buildEarningsCard() {
+class HomeTab extends ConsumerWidget {
+  const HomeTab({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final workerState = ref.watch(workerProvider);
+    final requests = workerState.nearbyRequests;
+
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize:
+            MainAxisSize.min, // Ensure Column doesn't expand needlessly
+        children: [
+          if (workerState.jobStatus != JobStatus.idle &&
+              workerState.activeJob != null)
+            _ActiveJobCard(state: workerState),
+          const _EarningsSummaryCard(),
+          const SizedBox(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('New Requests', style: AppTextStyles.titleLarge),
+              if (requests.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.saffronGlow,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '${requests.length} NEARBY',
+                    style: AppTextStyles.chipLabel.copyWith(
+                      color: AppColors.saffronAmber,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (requests.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Column(
+                  children: [
+                    const Icon(
+                      LucideIcons.search,
+                      color: AppColors.mutedFog,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No new requests nearby',
+                      style: AppTextStyles.bodyLarge,
+                    ),
+                    Text(
+                      'We\'ll notify you when a job appears',
+                      style: AppTextStyles.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ...requests.map((request) => _RequestCard(request: request)),
+        ],
+      ),
+    );
+  }
+}
+
+class _EarningsSummaryCard extends StatelessWidget {
+  const _EarningsSummaryCard();
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -166,9 +243,9 @@ class _WorkerDashboardScreenState extends ConsumerState<WorkerDashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildEarningStat('Jobs', '4'),
-              _buildEarningStat('Rating', '4.8★'),
-              _buildEarningStat('Online', '6.5h'),
+              _buildStat('Jobs', '4'),
+              _buildStat('Rating', '4.8★'),
+              _buildStat('Online', '6.5h'),
             ],
           ),
         ],
@@ -176,7 +253,7 @@ class _WorkerDashboardScreenState extends ConsumerState<WorkerDashboardScreen> {
     );
   }
 
-  Widget _buildEarningStat(String label, String value) {
+  Widget _buildStat(String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -185,98 +262,21 @@ class _WorkerDashboardScreenState extends ConsumerState<WorkerDashboardScreen> {
       ],
     );
   }
+}
 
-  Widget _buildHomeScreen() {
-    return Consumer(
-      builder: (context, ref, child) {
-        final workerState = ref.watch(workerProvider);
-        final requests = workerState.nearbyRequests;
+class _ActiveJobCard extends StatelessWidget {
+  final WorkerState state;
+  const _ActiveJobCard({required this.state});
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (workerState.jobStatus != JobStatus.idle &&
-                  workerState.activeJob != null)
-                _buildActiveJobCard(workerState),
-              _buildEarningsCard(),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('New Requests', style: AppTextStyles.titleLarge),
-                  if (requests.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.saffronGlow,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        '${requests.length} NEARBY',
-                        style: AppTextStyles.chipLabel.copyWith(
-                          color: AppColors.saffronAmber,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              if (requests.isEmpty)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 40),
-                    child: Column(
-                      children: [
-                        const Icon(
-                          LucideIcons.search,
-                          color: AppColors.mutedFog,
-                          size: 48,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No new requests nearby',
-                          style: AppTextStyles.bodyLarge,
-                        ),
-                        Text(
-                          'We\'ll notify you when a job appears',
-                          style: AppTextStyles.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              else
-                ...requests.map((request) => _buildRequestCard(request)),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Color _getTagColor(String tag) {
-    switch (tag) {
-      case 'URGENT':
-        return AppColors.emergencyCrimson;
-      case 'FAST RESPONSE':
-        return AppColors.warningAmber;
-      default:
-        return AppColors.liveTeal;
-    }
-  }
-
-  Widget _buildActiveJobCard(WorkerState state) {
+  @override
+  Widget build(BuildContext context) {
     final job = state.activeJob!;
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.midnightNavy,
+        color:
+            AppColors.elevatedGraphite, // Different color to ensure visibility
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: AppColors.liveTeal.withOpacity(0.5),
@@ -360,8 +360,25 @@ class _WorkerDashboardScreenState extends ConsumerState<WorkerDashboardScreen> {
     }
     Navigator.push(context, MaterialPageRoute(builder: (context) => target));
   }
+}
 
-  Widget _buildRequestCard(ServiceRequest request) {
+class _RequestCard extends ConsumerWidget {
+  final ServiceRequest request;
+  const _RequestCard({required this.request});
+
+  Color _getTagColor(String tag) {
+    switch (tag) {
+      case 'URGENT':
+        return AppColors.emergencyCrimson;
+      case 'FAST RESPONSE':
+        return AppColors.warningAmber;
+      default:
+        return AppColors.liveTeal;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final tagColor = _getTagColor(request.tag);
     return Card(
       margin: const EdgeInsets.only(bottom: 16),

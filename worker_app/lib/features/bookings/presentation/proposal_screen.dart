@@ -188,8 +188,8 @@ class _ProposalScreenState extends ConsumerState<ProposalScreen> {
         Slider(
           value: _advancePercentage,
           min: 0,
-          max: 50,
-          divisions: 10,
+          max: 75,
+          divisions: 15,
           activeColor: AppColors.saffronAmber,
           onChanged: (val) => setState(() => _advancePercentage = val),
         ),
@@ -229,8 +229,8 @@ class _ProposalScreenState extends ConsumerState<ProposalScreen> {
         .read(workerProvider.notifier)
         .startNegotiation(widget.request, _inspectionFee + _estimatedCost);
 
-    // Simple push replacement to clear ProposalScreen from history
-    Navigator.pushReplacement(
+    // Simple push to allow backtracking
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const NegotiationScreen()),
     );
